@@ -2,16 +2,16 @@
 `include "./include/config.sv"
 
 module AXI4_CROSSBAR (
-        input       logic                                           clk,
-        input       logic                                           rst,
+        input       logic                                   clk,
+        input       logic                                   rst,
 
         // AXI_port
 
         /* masters */
-        AXI4_Interface.axi4_master_interface                        axi4_master_interface               [0 : `MASTER_NUM - 1],
+        AXI4_Interface.axi4_master_interface                axi4_master_interface,
 
         /* slaves */
-        AXI4_Interface.axi4_slave_interface                         axi4_slave_interface                [0 : `SLAVE_NUM - 1]
+        AXI4_Interface.axi4_slave_interface                 axi4_slave_interface
     );
 
     // ID extend and simplify

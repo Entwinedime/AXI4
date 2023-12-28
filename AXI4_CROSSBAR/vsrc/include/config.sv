@@ -1,5 +1,5 @@
-`define MASTER_NUM      2
-`define SLAVE_NUM       8
+`define MASTER_NUM      1
+`define SLAVE_NUM       1
 `define W_ID_LEN        4
 `define R_ID_LEN        4
 `define EXTRA_ID_LEN    1

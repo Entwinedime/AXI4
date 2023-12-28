@@ -1,50 +1,53 @@
 `include "./config.sv"
 
 interface AXI4_Interface;
+
+    parameter NUM = 0;
+
     // AW
-    logic                       [`W_ID_LEN - 1 : 0]                     AWID    ;
-    logic                       [`ADDR_WIDTH - 1 : 0]                   AWADDR  ;
-    logic                       [7 : 0]                                 AWLEN   ;
-    logic                       [2 : 0]                                 AWSIZE  ;
-    logic                       [1 : 0]                                 AWBURST ;
-    logic                       [1 : 0]                                 AWLOCK  ;
-    logic                       [3 : 0]                                 AWCACHE ;
-    logic                       [2 : 0]                                 AWPORT  ;
-    logic                                                               AWVALID ;
-    logic                                                               AWREADY ;
+    logic                       [`W_ID_LEN - 1 : 0]                     AWID                [0 : NUM - 1];
+    logic                       [`ADDR_WIDTH - 1 : 0]                   AWADDR              [0 : NUM - 1];
+    logic                       [7 : 0]                                 AWLEN               [0 : NUM - 1];
+    logic                       [2 : 0]                                 AWSIZE              [0 : NUM - 1];
+    logic                       [1 : 0]                                 AWBURST             [0 : NUM - 1];
+    logic                       [1 : 0]                                 AWLOCK              [0 : NUM - 1];
+    logic                       [3 : 0]                                 AWCACHE             [0 : NUM - 1];
+    logic                       [2 : 0]                                 AWPORT              [0 : NUM - 1];
+    logic                                                               AWVALID             [0 : NUM - 1];
+    logic                                                               AWREADY             [0 : NUM - 1];
 
     // W
-    logic                       [`DATA_WIDTH - 1 : 0]                   WDATA   ;
-    logic                       [`DATA_WIDTH/8 - 1: 0]                  WSTRB   ;
-    logic                                                               WLAST   ;
-    logic                                                               WVALID  ;
-    logic                                                               WREADY  ;
+    logic                       [`DATA_WIDTH - 1 : 0]                   WDATA               [0 : NUM - 1];
+    logic                       [`DATA_WIDTH/8 - 1: 0]                  WSTRB               [0 : NUM - 1];
+    logic                                                               WLAST               [0 : NUM - 1];
+    logic                                                               WVALID              [0 : NUM - 1];
+    logic                                                               WREADY              [0 : NUM - 1];
 
     // B
-    logic                       [`W_ID_LEN - 1 : 0]                     BID     ;
-    logic                       [1 : 0]                                 BRESP   ;
-    logic                                                               BVALID  ;
-    logic                                                               BREADY  ;
+    logic                       [`W_ID_LEN - 1 : 0]                     BID                 [0 : NUM - 1];
+    logic                       [1 : 0]                                 BRESP               [0 : NUM - 1];
+    logic                                                               BVALID              [0 : NUM - 1];
+    logic                                                               BREADY              [0 : NUM - 1];
 
     // AR
-    logic                       [`R_ID_LEN - 1 : 0]                     ARID    ;
-    logic                       [`ADDR_WIDTH - 1 : 0]                   ARADDR  ;
-    logic                       [7 : 0]                                 ARLEN   ;
-    logic                       [2 : 0]                                 ARSIZE  ;
-    logic                       [1 : 0]                                 ARBURST ;
-    logic                       [1 : 0]                                 ARLOCK  ;
-    logic                       [3 : 0]                                 ARCACHE ;
-    logic                       [2 : 0]                                 ARPORT  ;
-    logic                                                               ARVALID ;
-    logic                                                               ARREADY ;
+    logic                       [`R_ID_LEN - 1 : 0]                     ARID                [0 : NUM - 1];
+    logic                       [`ADDR_WIDTH - 1 : 0]                   ARADDR              [0 : NUM - 1];
+    logic                       [7 : 0]                                 ARLEN               [0 : NUM - 1];
+    logic                       [2 : 0]                                 ARSIZE              [0 : NUM - 1];
+    logic                       [1 : 0]                                 ARBURST             [0 : NUM - 1];
+    logic                       [1 : 0]                                 ARLOCK              [0 : NUM - 1];
+    logic                       [3 : 0]                                 ARCACHE             [0 : NUM - 1];
+    logic                       [2 : 0]                                 ARPORT              [0 : NUM - 1];
+    logic                                                               ARVALID             [0 : NUM - 1];
+    logic                                                               ARREADY             [0 : NUM - 1];
 
     // R
-    logic                      [`R_ID_LEN - 1 : 0]                      RID     ;
-    logic                      [`DATA_WIDTH - 1 : 0]                    RDATA   ;
-    logic                      [`DATA_WIDTH/8 - 1 : 0]                  RSTRB   ;
-    logic                                                               RLAST   ;
-    logic                                                               RVALID  ;
-    logic                                                               RREADY  ;
+    logic                      [`R_ID_LEN - 1 : 0]                      RID                 [0 : NUM - 1];
+    logic                      [`DATA_WIDTH - 1 : 0]                    RDATA               [0 : NUM - 1];
+    logic                      [`DATA_WIDTH/8 - 1 : 0]                  RSTRB               [0 : NUM - 1];
+    logic                                                               RLAST               [0 : NUM - 1];
+    logic                                                               RVALID              [0 : NUM - 1];
+    logic                                                               RREADY              [0 : NUM - 1];
 
 modport axi4_master_interface (
     input           AWID,
