@@ -2,10 +2,10 @@ module PRIORITY_REG #(
         parameter SENDER_NUM = 8
     )
     (
-        input           logic                                               clk,
-        input           logic                                               rst,
-        input           logic                                               valid       [0 : SENDER_NUM - 1],
-        input           logic                                               ready       [0 : SENDER_NUM - 1],
+        input           logic               [0 : 0]                         clk,
+        input           logic               [0 : 0]                         rstn,
+        input           logic               [0 : 0]                         valid       [0 : SENDER_NUM - 1],
+        input           logic               [0 : 0]                         ready       [0 : SENDER_NUM - 1],
         output          logic               [SENDER_NUM - 1 : 0]            prio        [0 : SENDER_NUM - 1]
     );
 
@@ -35,7 +35,7 @@ module PRIORITY_REG #(
             assign need_change_prio[i] = (valid[i] & ready[i]) ? prio[i] : 0;
             
             always @(posedge clk) begin
-                if (rst) begin
+                if (!rstn) begin
                     prio[i] <= (1 << i);
                 end
                 else begin

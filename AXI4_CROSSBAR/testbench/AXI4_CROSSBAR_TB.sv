@@ -4,14 +4,14 @@
 module AXI4_CROSSBAR_TB();
 
     logic       [0 : 0]                             clk;
-    logic       [0 : 0]                             rst;
+    logic       [0 : 0]                             rstn;
 
     AXI4_Interface#(.NUM(`MASTER_NUM))              master_interface();
     AXI4_Interface#(.NUM(`SLAVE_NUM))               slave_interface();
 
     AXI4_CROSSBAR axi4_crossbar(
         .clk                            (clk),
-        .rst                            (rst),
+        .rstn                           (rstn),
         .axi4_master_interface          (master_interface),
         .axi4_slave_interface           (slave_interface)
     );
@@ -22,10 +22,10 @@ module AXI4_CROSSBAR_TB();
         forever #5 clk                  = ~clk;
     end
 
-    // rst
+    // rstn
     initial begin
-        rst                             = 1'b1;
-        #10 rst                         = 1'b0;
+        rstn                            = 1'b0;
+        #10 rstn                        = 1'b1;
     end
 
 endmodule

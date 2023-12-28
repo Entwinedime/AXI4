@@ -3,14 +3,17 @@ module QUEUE #(
         parameter DEPTH = 8
     )
     (
-        input       logic                                   clk, rst,
-        input       logic                                   en,
+        input       logic           [0 : 0]                 clk,
+        input       logic           [0 : 0]                 rstn,
+        input       logic           [0 : 0]                 en,
 
-        input       logic                                   enqueue, dequeue,
+        input       logic           [0 : 0]                 enqueue,
+        input       logic           [0 : 0]                 dequeue,
         input       logic           [WIDTH - 1 : 0]         enqueue_data,
         output      logic           [WIDTH - 1 : 0]         queue_head_data,
 
-        output      logic                                  empty, full
+        output      logic           [0 : 0]                 empty,
+        output      logic           [0 : 0]                 full
     );
 
     logic     [WIDTH - 1 : 0]     fifo_queue      [0 : (1 << DEPTH) - 1];
@@ -27,7 +30,7 @@ module QUEUE #(
     end
 
     always @(posedge clk) begin
-        if(rst | ~en) begin	                    // synchronous reset, but should be logicarded asynchronous with cpu_clk
+        if(!rstn | ~en) begin	                    // synchronous reset, but should be logicarded asynchronous with cpu_clk
             head <= 0;
             rear <= 0;
         end

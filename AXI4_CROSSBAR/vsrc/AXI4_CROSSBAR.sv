@@ -3,7 +3,7 @@
 
 module AXI4_CROSSBAR (
         input       logic                                   clk,
-        input       logic                                   rst,
+        input       logic                                   rstn,
 
         // AXI_port
 
@@ -74,7 +74,7 @@ module AXI4_CROSSBAR (
     m_aw_priority_reg
     (
         .clk(clk),
-        .rst(rst),
+        .rstn(rstn),
         .valid(axi4_master_interface.AWVALID),
         .ready(axi4_master_interface.AWREADY),
         .prio(m_aw_priority)
@@ -86,7 +86,7 @@ module AXI4_CROSSBAR (
     m_ar_priority_reg
     (
         .clk(clk),
-        .rst(rst),
+        .rstn(rstn),
         .valid(axi4_master_interface.ARVALID),
         .ready(axi4_master_interface.ARREADY),
         .prio(m_ar_priority)
@@ -98,7 +98,7 @@ module AXI4_CROSSBAR (
     m_w_priority_reg
     (
         .clk(clk),
-        .rst(rst),
+        .rstn(rstn),
         .valid(axi4_master_interface.WVALID),
         .ready(axi4_master_interface.WREADY),
         .prio(m_w_priority)
@@ -114,7 +114,7 @@ module AXI4_CROSSBAR (
     s_r_priority_reg
     (
         .clk(clk),
-        .rst(rst),
+        .rstn(rstn),
         .valid(axi4_slave_interface.RVALID),
         .ready(axi4_slave_interface.RREADY),
         .prio(s_r_priority)
@@ -126,7 +126,7 @@ module AXI4_CROSSBAR (
     s_b_priority_reg
     (
         .clk(clk),
-        .rst(rst),
+        .rstn(rstn),
         .valid(axi4_slave_interface.BVALID),
         .ready(axi4_slave_interface.BREADY),
         .prio(s_b_priority)
@@ -180,7 +180,7 @@ module AXI4_CROSSBAR (
             w_buf
             (
                 .clk(clk),
-                .rst(rst),
+                .rstn(rstn),
                 .en(1'H1),
                 .enqueue(axi4_master_interface.AWVALID[genvar_master_index] & axi4_master_interface.AWREADY[genvar_master_index]),
                 .dequeue(axi4_master_interface.WLAST[genvar_master_index] & axi4_master_interface.WVALID[genvar_master_index] & axi4_master_interface.WREADY[genvar_master_index]),
@@ -598,7 +598,7 @@ module AXI4_CROSSBAR (
             r_buf
             (
                 .clk(clk),
-                .rst(rst),
+                .rstn(rstn),
                 .en(1'H1),
                 .enqueue((axi4_master_interface.ARID[genvar_r_buf_index >> `R_ID_LEN] == genvar_r_buf_index[`R_ID_LEN - 1 : 0]) & axi4_master_interface.ARVALID[genvar_r_buf_index >> `R_ID_LEN] & axi4_master_interface.ARREADY[genvar_r_buf_index >> `R_ID_LEN]),
                 .dequeue((axi4_master_interface.RID[genvar_r_buf_index >> `R_ID_LEN] == genvar_r_buf_index[`R_ID_LEN - 1 : 0]) & axi4_master_interface.RLAST[genvar_r_buf_index >> `R_ID_LEN] & axi4_master_interface.RVALID[genvar_r_buf_index >> `R_ID_LEN] & axi4_master_interface.RREADY[genvar_r_buf_index >> `R_ID_LEN]),
