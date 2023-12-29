@@ -1,6 +1,5 @@
-`ifndef _AXI_INTERFACE_DEFINED_
-    
-`define _AXI_INTERFACE_DEFINED_
+`ifndef _AXI4_INTERFACE_SV_
+`define _AXI4_INTERFACE_SV_
 
 `define W_ID_LEN        4
 `define R_ID_LEN        4
