@@ -1,3 +1,7 @@
+`ifndef _AXI_INTERFACE_DEFINED_
+    
+`define _AXI_INTERFACE_DEFINED_
+
 `define W_ID_LEN        4
 `define R_ID_LEN        4
 `define EXTRA_ID_LEN    $clog2(`MASTER_NUM)
@@ -195,3 +199,4 @@ modport port (
     
 endinterface
 
+`endif
