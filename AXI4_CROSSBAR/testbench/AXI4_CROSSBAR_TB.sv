@@ -1,13 +1,12 @@
 `include "../vsrc/include/Interface.sv"
-`include "../vsrc/include/config.sv"
 
 module AXI4_CROSSBAR_TB();
 
     logic       [0 : 0]                             clk;
     logic       [0 : 0]                             rstn;
 
-    AXI4_Interface#(.NUM(`MASTER_NUM))              master_interface();
-    AXI4_Interface#(.NUM(`SLAVE_NUM))               slave_interface();
+    AXI4_Master_Interface#(.NUM(`MASTER_NUM))       master_interface();
+    AXI4_Slave_Interface#(.NUM(`SLAVE_NUM))         slave_interface();
 
     AXI4_CROSSBAR axi4_crossbar(
         .clk                            (clk),
