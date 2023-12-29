@@ -526,18 +526,18 @@ module AXI4_CROSSBAR(
                     .val_sig(axi4_slave_interface.AWCACHE[genvar_slave_index])
                 );
 
-                // s_AWPORT
+                // s_AWPROT
                 VAL_SIG_GEN_TO_RECEIVER #(
                     .WIDTH(3),
                     .SENDER_NUM(`MASTER_NUM),
                     .RECEIVER_NUM(`SLAVE_NUM),
                     .RECEIVER_CHOSEN(genvar_slave_index) 
                 )
-                s_awport_gen
+                s_awprot_gen
                 (
-                    .signal(axi4_master_interface.AWPORT),
+                    .signal(axi4_master_interface.AWPROT),
                     .select(aw_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.AWPORT[genvar_slave_index])
+                    .val_sig(axi4_slave_interface.AWPROT[genvar_slave_index])
                 );
 
                 // s_AWVALID

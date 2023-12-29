@@ -22,7 +22,7 @@ interface AXI4_Master_Interface;
     logic                       [1 : 0]                                 AWBURST             [0 : NUM - 1];
     logic                       [1 : 0]                                 AWLOCK              [0 : NUM - 1];
     logic                       [3 : 0]                                 AWCACHE             [0 : NUM - 1];
-    logic                       [2 : 0]                                 AWPORT              [0 : NUM - 1];
+    logic                       [2 : 0]                                 AWPROT              [0 : NUM - 1];
     logic                                                               AWVALID             [0 : NUM - 1];
     logic                                                               AWREADY             [0 : NUM - 1];
 
@@ -67,7 +67,7 @@ modport port (
     input           AWBURST,
     input           AWLOCK,
     input           AWCACHE,
-    input           AWPORT,
+    input           AWPROT,
     input           AWVALID,
     output          AWREADY,
 
@@ -115,7 +115,7 @@ interface AXI4_Slave_Interface;
     logic                       [1 : 0]                                 AWBURST             [0 : NUM - 1];
     logic                       [1 : 0]                                 AWLOCK              [0 : NUM - 1];
     logic                       [3 : 0]                                 AWCACHE             [0 : NUM - 1];
-    logic                       [2 : 0]                                 AWPORT              [0 : NUM - 1];
+    logic                       [2 : 0]                                 AWPROT              [0 : NUM - 1];
     logic                                                               AWVALID             [0 : NUM - 1];
     logic                                                               AWREADY             [0 : NUM - 1];
 
@@ -159,7 +159,7 @@ modport port (
     output          AWBURST,
     output          AWLOCK,
     output          AWCACHE,
-    output          AWPORT,
+    output          AWPROT,
     output          AWVALID,
     input           AWREADY,
 
