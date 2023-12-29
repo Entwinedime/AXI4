@@ -6,7 +6,7 @@
 `define DATA_WIDTH      64
 
 `define MASTER_NUM      4
-`define SLAVE_NUM       8
+`define SLAVE_NUM       4
 
 `define W_BUF_DEPTH     2
 `define R_BUF_DEPTH     2
