@@ -19,14 +19,6 @@ axi4_interface axi4_master_bram::get_interface_signal() {
     return _interface;
 }
 
-uint64_t axi4_master_bram::get_bram_data(uint64_t addr, uint8_t size) {
-    uint64_t data = 0;
-    for (size_t i = 0; i < size; ++i) {
-        data |= static_cast<uint64_t>(_bram_data[addr % 4096 + i]) << (8 * i);
-    }
-    return data;
-}
-
 void axi4_master_bram::handle_interaction(const axi4_interface& interface) {
     // update transaction list
 
@@ -136,6 +128,14 @@ void axi4_master_bram::new_read_transaction(const axi4_read_transaction& transac
     _read_transaction_list.push_back(transaction);
 }
 
+uint64_t axi4_master_bram::get_bram_data(uint64_t addr, uint8_t size) {
+    uint64_t data = 0;
+    for (size_t i = 0; i < size; ++i) {
+        data |= static_cast<uint64_t>(_bram_data[addr % 4096 + i]) << (8 * i);
+    }
+    return data;
+}
+
 void axi4_master_bram::reset() {
     std::memset(&_interface, 0, sizeof(_interface));
     _interface.BREADY = 1;
@@ -167,14 +167,6 @@ axi4_slave_bram::axi4_slave_bram() {
 
 axi4_interface axi4_slave_bram::get_interface_signal() {
     return _interface;
-}
-
-uint64_t axi4_slave_bram::get_bram_data(uint64_t addr, uint8_t size) {
-    uint64_t data = 0;
-    for (size_t i = 0; i < size; ++i) {
-        data |= static_cast<uint64_t>(_bram_data[addr % 4096 + i]) << (8 * i);
-    }
-    return data;
 }
 
 void axi4_slave_bram::handle_interaction(const axi4_interface& interface) {
@@ -269,4 +261,27 @@ void axi4_slave_bram::handle_interaction(const axi4_interface& interface) {
             _interface.RVALID = 1;
         }
     }
+}
+
+uint64_t axi4_slave_bram::get_bram_data(uint64_t addr, uint8_t size) {
+    uint64_t data = 0;
+    for (size_t i = 0; i < size; ++i) {
+        data |= static_cast<uint64_t>(_bram_data[addr % 4096 + i]) << (8 * i);
+    }
+    return data;
+}
+
+void axi4_slave_bram::reset() {
+    std::memset(&_interface, 0, sizeof(_interface));
+    _interface.AWREADY = 1;
+    _interface.ARREADY = 1;
+    _interface.WREADY = 1;
+    _interface.RSTRB = 0xff;
+
+    for (int i = 0; i < 1024; i++) {
+        _bram_data[i] = 0;
+    }
+
+    _write_transaction_list.clear();
+    _read_transaction_list.clear();
 }
