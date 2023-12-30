@@ -1,4 +1,4 @@
-#include "axi4_bram.h"
+#include "axi4_master_bram.h"
 #include "axi4_transaction.h"
 
 axi4_master_bram::axi4_master_bram() {

@@ -1,4 +1,4 @@
-#include "axi4_bram.h"
+#include "axi4_slave_bram.h"
 #include "axi4_transaction.h"
 
 axi4_slave_bram::axi4_slave_bram() {

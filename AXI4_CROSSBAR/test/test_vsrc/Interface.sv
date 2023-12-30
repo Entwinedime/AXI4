@@ -50,7 +50,7 @@ interface AXI4_Master_Interface;
     logic                       [1 : 0]                                 ARBURST             [0 : NUM - 1];
     logic                       [1 : 0]                                 ARLOCK              [0 : NUM - 1];
     logic                       [3 : 0]                                 ARCACHE             [0 : NUM - 1];
-    logic                       [2 : 0]                                 ARPORT              [0 : NUM - 1];
+    logic                       [2 : 0]                                 ARPROT              [0 : NUM - 1];
     logic                       [0 : 0]                                 ARVALID             [0 : NUM - 1];
     logic                       [0 : 0]                                 ARREADY             [0 : NUM - 1];
 
@@ -92,7 +92,7 @@ modport port (
     input           ARBURST,
     input           ARLOCK,
     input           ARCACHE,
-    input           ARPORT,
+    input           ARPROT,
     input           ARVALID,
     output          ARREADY,
 
@@ -143,7 +143,7 @@ interface AXI4_Slave_Interface;
     logic                       [1 : 0]                                 ARBURST             [0 : NUM - 1];
     logic                       [1 : 0]                                 ARLOCK              [0 : NUM - 1];
     logic                       [3 : 0]                                 ARCACHE             [0 : NUM - 1];
-    logic                       [2 : 0]                                 ARPORT              [0 : NUM - 1];
+    logic                       [2 : 0]                                 ARPROT              [0 : NUM - 1];
     logic                       [0 : 0]                                 ARVALID             [0 : NUM - 1];
     logic                       [0 : 0]                                 ARREADY             [0 : NUM - 1];
     // R
@@ -184,7 +184,7 @@ modport port (
     output          ARBURST,
     output          ARLOCK,
     output          ARCACHE,
-    output          ARPORT,
+    output          ARPROT,
     output          ARVALID,
     input           ARREADY,
 

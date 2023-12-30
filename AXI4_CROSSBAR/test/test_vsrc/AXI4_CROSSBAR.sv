@@ -384,7 +384,7 @@ module AXI4_CROSSBAR(
                     .val_sig(axi4_slave_interface.ARCACHE[genvar_slave_index])
                 );
 
-                // s_ARPORT
+                // s_ARPROT
                 VAL_SIG_GEN_TO_RECEIVER #(
                     .WIDTH(3),
                     .SENDER_NUM(`MASTER_NUM),
@@ -393,9 +393,9 @@ module AXI4_CROSSBAR(
                 )
                 s_arport_gen
                 (
-                    .signal(axi4_master_interface.ARPORT),
+                    .signal(axi4_master_interface.ARPROT),
                     .select(ar_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.ARPORT[genvar_slave_index])
+                    .val_sig(axi4_slave_interface.ARPROT[genvar_slave_index])
                 );
 
                 // s_ARVALID
