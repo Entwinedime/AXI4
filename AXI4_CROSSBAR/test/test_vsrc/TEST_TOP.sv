@@ -1,8 +1,8 @@
 `include "./Interface.sv"
 
 module TEST_TOP(
-    input           logic                       [0 : 0]                                 clk,
-    input           logic                       [0 : 0]                                 rstn,
+    input           logic                                                               clk,
+    input           logic                                                               rstn,
 
     /* master0 */
         // AW

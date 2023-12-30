@@ -38,35 +38,35 @@ module AXI4_CROSSBAR(
     endgenerate
 
     // slave_select
-    logic       [`SLAVE_NUM - 1 : 0]                         aw_slave_select                 [0 : `MASTER_NUM - 1];
-    logic       [`SLAVE_NUM - 1 : 0]                         ar_slave_select                 [0 : `MASTER_NUM - 1];
-    logic       [`SLAVE_NUM - 1 : 0]                         w_slave_select                  [0 : `MASTER_NUM - 1];
+    logic       [`SLAVE_NUM - 1 : 0]                        aw_slave_select                 [0 : `MASTER_NUM - 1];
+    logic       [`SLAVE_NUM - 1 : 0]                        ar_slave_select                 [0 : `MASTER_NUM - 1];
+    logic       [`SLAVE_NUM - 1 : 0]                        w_slave_select                  [0 : `MASTER_NUM - 1];
 
-    logic       [`SLAVE_NUM - 1 : 0]                         aw_slave_select_with_priority   [0 : `MASTER_NUM - 1];
-    logic       [`SLAVE_NUM - 1 : 0]                         ar_slave_select_with_priority   [0 : `MASTER_NUM - 1];
-    logic       [`SLAVE_NUM - 1 : 0]                         w_slave_select_with_priority    [0 : `MASTER_NUM - 1];
+    logic       [`SLAVE_NUM - 1 : 0]                        aw_slave_select_with_priority   [0 : `MASTER_NUM - 1];
+    logic       [`SLAVE_NUM - 1 : 0]                        ar_slave_select_with_priority   [0 : `MASTER_NUM - 1];
+    logic       [`SLAVE_NUM - 1 : 0]                        w_slave_select_with_priority    [0 : `MASTER_NUM - 1];
 
     // w_buf
     logic       [0 : 0]                                     w_buf_empty                     [0 : `MASTER_NUM - 1];
     logic       [0 : 0]                                     w_buf_full                      [0 : `MASTER_NUM - 1];
-    logic       [`SLAVE_NUM - 1 : 0]                         w_buf_head_data                 [0 : `MASTER_NUM - 1];
+    logic       [`SLAVE_NUM - 1 : 0]                        w_buf_head_data                 [0 : `MASTER_NUM - 1];
 
     // master_select
-    logic       [`MASTER_NUM - 1 : 0]                        r_master_select                 [0 : `SLAVE_NUM - 1];
-    logic       [`MASTER_NUM - 1 : 0]                        b_master_select                 [0 : `SLAVE_NUM - 1];
+    logic       [`MASTER_NUM - 1 : 0]                       r_master_select                 [0 : `SLAVE_NUM - 1];
+    logic       [`MASTER_NUM - 1 : 0]                       b_master_select                 [0 : `SLAVE_NUM - 1];
 
-    logic       [`MASTER_NUM - 1 : 0]                        r_master_select_with_priority   [0 : `SLAVE_NUM - 1];
-    logic       [`MASTER_NUM - 1 : 0]                        b_master_select_with_priority   [0 : `SLAVE_NUM - 1];
+    logic       [`MASTER_NUM - 1 : 0]                       r_master_select_with_priority   [0 : `SLAVE_NUM - 1];
+    logic       [`MASTER_NUM - 1 : 0]                       b_master_select_with_priority   [0 : `SLAVE_NUM - 1];
 
     // r_buf
     logic       [0 : 0]                                     r_buf_empty                     [0 : (1 << (`EXTRA_ID_LEN + `R_ID_LEN)) - 1];
     logic       [0 : 0]                                     r_buf_full                      [0 : (1 << (`EXTRA_ID_LEN + `R_ID_LEN)) - 1];
-    logic       [`SLAVE_NUM - 1 : 0]                         r_buf_head_data                 [0 : (1 << (`EXTRA_ID_LEN + `R_ID_LEN)) - 1];
+    logic       [`SLAVE_NUM - 1 : 0]                        r_buf_head_data                 [0 : (1 << (`EXTRA_ID_LEN + `R_ID_LEN)) - 1];
 
     // m_priority
-    logic       [`MASTER_NUM - 1 : 0]                        m_aw_priority                   [0 : `MASTER_NUM - 1];
-    logic       [`MASTER_NUM - 1 : 0]                        m_ar_priority                   [0 : `MASTER_NUM - 1];
-    logic       [`MASTER_NUM - 1 : 0]                        m_w_priority                    [0 : `MASTER_NUM - 1];
+    logic       [`MASTER_NUM - 1 : 0]                       m_aw_priority                   [0 : `MASTER_NUM - 1];
+    logic       [`MASTER_NUM - 1 : 0]                       m_ar_priority                   [0 : `MASTER_NUM - 1];
+    logic       [`MASTER_NUM - 1 : 0]                       m_w_priority                    [0 : `MASTER_NUM - 1];
 
     // s_priority
     logic [`SLAVE_NUM - 1 : 0] s_r_priority [0 : `SLAVE_NUM - 1];
