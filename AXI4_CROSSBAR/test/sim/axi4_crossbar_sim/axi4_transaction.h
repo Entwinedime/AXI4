@@ -2,6 +2,7 @@
 #define _AXI4_TRANSACTION_H_
 
 #include <cstdint>
+#include <vector>
 
     typedef enum {
         AXI4_AW,
@@ -33,5 +34,11 @@
         axi4_read_transaction_state     state;
         uint8_t                         read_count;
     } axi4_read_transaction;
+
+    typedef std::vector<axi4_write_transaction> read_transaction_list;
+    typedef std::vector<axi4_read_transaction> write_transaction_list;
+
+    int list_search_with_id(const read_transaction_list& list, uint8_t id);
+    int list_search_with_id(const write_transaction_list& list, uint8_t id);
 
 #endif

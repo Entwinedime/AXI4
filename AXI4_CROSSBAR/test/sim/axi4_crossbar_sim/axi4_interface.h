@@ -6,7 +6,7 @@
 typedef struct {
     // AW
     uint8_t                     AWID;
-    uint32_t                    AWADDR;
+    uint64_t                    AWADDR;
     uint8_t                     AWLEN;
     uint8_t                     AWSIZE;
     uint8_t                     AWBURST;
@@ -31,7 +31,7 @@ typedef struct {
 
     // AR
     uint8_t                     ARID;
-    uint32_t                    ARADDR;
+    uint64_t                    ARADDR;
     uint8_t                     ARLEN;
     uint8_t                     ARSIZE;
     uint8_t                     ARBURST;
@@ -39,6 +39,7 @@ typedef struct {
     uint8_t                     ARCACHE;
     uint8_t                     ARPROT;
     uint8_t                     ARVALID;
+    uint8_t                     ARREADY;
 
     // R
     uint8_t                     RID;
