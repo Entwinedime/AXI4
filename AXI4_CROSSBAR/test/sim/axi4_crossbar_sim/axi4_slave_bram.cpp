@@ -1,7 +1,6 @@
 #include "axi4_slave_bram.h"
 #include "axi4_transaction.h"
-#include <algorithm>
-#include <cstdio>
+
 #include <iostream>
 
 axi4_slave_bram::axi4_slave_bram() {
@@ -81,11 +80,12 @@ void axi4_slave_bram::handle_interaction(const axi4_interface& interface) {
 
     // R
     if (_interface.RVALID && interface.RREADY) {
-        int read_list_index = list_search_with_id(_read_transaction_list, interface.RID, AXI4_R);
+        int read_list_index = list_search_with_id(_read_transaction_list, _interface.RID, AXI4_R);
         _read_transaction_list[read_list_index].read_count++;
-        if (interface.RLAST) {
+        if (_interface.RLAST) {
             read_transaction_completed_list.push_back(_read_transaction_list[read_list_index]);
             _read_transaction_list.erase(_read_transaction_list.begin() + read_list_index);
+            _interface.RLAST = 0;
         }
         _interface.RVALID = 0;
     }
@@ -117,7 +117,6 @@ void axi4_slave_bram::handle_interaction(const axi4_interface& interface) {
 
     // R
     if (!_interface.RVALID && !_read_transaction_list.empty()) {
-        printf("win\n");
         srand((unsigned)time(NULL)); 
         int id = rand() % 16;
         int try_count = 0;
@@ -140,8 +139,8 @@ void axi4_slave_bram::handle_interaction(const axi4_interface& interface) {
 
 uint64_t axi4_slave_bram::get_bram_data(uint64_t addr, uint8_t size) {
     uint64_t data = 0;
-    for (size_t i = 0; i < size; ++i) {
-        data |= static_cast<uint64_t>(_bram_data[addr % 4096 + i]) << (8 * i);
+    for (size_t i = 0; i < (1 << size); ++i) {
+        data |= static_cast<uint64_t>(_bram_data[(addr  + i) % 4096]) << (8 * i);
     }
     return data;
 }
@@ -149,7 +148,7 @@ uint64_t axi4_slave_bram::get_bram_data(uint64_t addr, uint8_t size) {
 std::vector<uint64_t> axi4_slave_bram::get_bram_data_to_vector(uint64_t addr, uint8_t size, uint8_t len) {
     std::vector<uint64_t> data;
     for (size_t i = 0; i < len; ++i) {
-        data.push_back(axi4_slave_bram::get_bram_data(addr + i * (1 << size), size));
+        data.push_back(axi4_slave_bram::get_bram_data(addr + i * (1 << size), (1 << size)));
     }
     return data;
 }

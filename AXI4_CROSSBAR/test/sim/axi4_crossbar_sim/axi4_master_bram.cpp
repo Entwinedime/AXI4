@@ -7,7 +7,6 @@ axi4_master_bram::axi4_master_bram() {
     write_transaction_completed_list.clear();
     read_transaction_completed_list.clear();
 
-    std::memset(&_interface, 0, sizeof(_interface));
     _interface.BREADY = 1;
     _interface.RREADY = 1;
     _interface.WSTRB = 0xff;
@@ -41,6 +40,7 @@ void axi4_master_bram::handle_interaction(const axi4_interface& interface) {
         _write_transaction_list[write_list_index].write_count++;
         if (_interface.WLAST) {
             _write_transaction_list[write_list_index].state = AXI4_B;
+            _interface.WLAST = 0;
         }
         _interface.WVALID = 0;
     }
@@ -80,7 +80,8 @@ void axi4_master_bram::handle_interaction(const axi4_interface& interface) {
                 break;
             }
         }
-        if (write_list_index < _write_transaction_list.size()) {
+        printf("%d\n", write_list_index);
+        if (-1 < write_list_index < _write_transaction_list.size()) {
             _interface.AWID     = _write_transaction_list[write_list_index].id;
             _interface.AWADDR   = _write_transaction_list[write_list_index].addr;
             _interface.AWLEN    = _write_transaction_list[write_list_index].len;
@@ -144,8 +145,8 @@ void axi4_master_bram::new_read_transaction(const axi4_read_transaction& transac
 
 uint64_t axi4_master_bram::get_bram_data(uint64_t addr, uint8_t size) {
     uint64_t data = 0;
-    for (size_t i = 0; i < size; ++i) {
-        data |= static_cast<uint64_t>(_bram_data[addr % 4096 + i]) << (8 * i);
+    for (size_t i = 0; i < (1 << size); ++i) {
+        data |= static_cast<uint64_t>(_bram_data[(addr + i) % 4096]) << (8 * i);
     }
     return data;
 }
@@ -153,7 +154,7 @@ uint64_t axi4_master_bram::get_bram_data(uint64_t addr, uint8_t size) {
 std::vector<uint64_t> axi4_master_bram::get_bram_data_to_vector(uint64_t addr, uint8_t size, uint8_t len) {
     std::vector<uint64_t> data;
     for (size_t i = 0; i < len; ++i) {
-        data.push_back(axi4_master_bram::get_bram_data(addr + i * (1 << size), size));
+        data.push_back(axi4_master_bram::get_bram_data(addr + i * (1 << size), (1 << size)));
     }
     return data;
 }
@@ -162,7 +163,6 @@ void axi4_master_bram::reset() {
     write_transaction_completed_list.clear();
     read_transaction_completed_list.clear();
 
-    std::memset(&_interface, 0, sizeof(_interface));
     _interface.BREADY = 1;
     _interface.RREADY = 1;
     _interface.WSTRB = 0xff;

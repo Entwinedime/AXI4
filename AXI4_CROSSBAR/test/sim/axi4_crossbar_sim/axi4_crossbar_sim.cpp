@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
     axi4_read_transaction read_transaction;
     axi4_write_transaction write_transaction;
 
-    srand((unsigned)time(NULL)); 
+    srand(time(nullptr));
     for (int i = 0; i < 4; i ++) {
         write_transaction_num[i] = rand() % 8 + 1;
         for (int j = 0; j < write_transaction_num[i]; j ++) {
@@ -61,7 +61,7 @@ int main(int argc, char** argv) {
             master_bram[i].new_read_transaction(read_transaction);
         }
     }
-
+    
     while(timeStamp < 10000) {
         top->clk = timeStamp % 2;
         top->rstn = 1;

@@ -1,7 +1,6 @@
 #ifndef _AXI4_TRANSACTION_H_
 #define _AXI4_TRANSACTION_H_
 
-#include <cstdint>
 #include <vector>
 
     typedef enum {
