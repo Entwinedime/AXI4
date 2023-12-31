@@ -1,5 +1,3 @@
-#include <random>
-
 #include "axi4_transaction_random_generator.h"
 #include "axi4_transaction.h"
 

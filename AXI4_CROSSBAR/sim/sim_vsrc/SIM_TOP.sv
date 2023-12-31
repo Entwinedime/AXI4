@@ -1,6 +1,6 @@
 `include "./Interface.sv"
 
-module TEST_TOP(
+module SIM_TOP(
     input           logic                                                               clk,
     input           logic                                                               rstn,
 

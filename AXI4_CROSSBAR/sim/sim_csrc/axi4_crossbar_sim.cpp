@@ -1,4 +1,3 @@
-#include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -8,7 +7,7 @@
 #include <verilated.h>
 #include <verilated_vcd_c.h>
 
-#include "VTEST_TOP.h"
+#include "VSIM_TOP.h"
 
 #include "axi4_interface.h"
 #include "axi4_master_bram.h"
@@ -28,7 +27,7 @@ int main(int argc, char** argv) {
     // Verilator must compute traced signals
     contextp->traceEverOn(true);
 
-    const auto top = std::make_unique<VTEST_TOP>(contextp.get());
+    const auto top = std::make_unique<VSIM_TOP>(contextp.get());
     const auto tfp = std::make_unique<VerilatedVcdC>();
 
     top->trace(tfp.get(), 0);

@@ -1,8 +1,6 @@
 #include "axi4_slave_bram.h"
 #include "axi4_transaction.h"
 
-#include <iostream>
-
 axi4_slave_bram::axi4_slave_bram() {
     write_transaction_completed_list.clear();
     read_transaction_completed_list.clear();

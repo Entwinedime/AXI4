@@ -1,8 +1,6 @@
 #include "axi4_master_bram.h"
 #include "axi4_transaction.h"
 
-#include <iostream>
-
 axi4_master_bram::axi4_master_bram() {
     write_transaction_completed_list.clear();
     read_transaction_completed_list.clear();
@@ -80,7 +78,7 @@ void axi4_master_bram::handle_interaction(const axi4_interface& interface) {
                 break;
             }
         }
-        printf("%d\n", write_list_index);
+
         if (-1 < write_list_index < _write_transaction_list.size()) {
             _interface.AWID     = _write_transaction_list[write_list_index].id;
             _interface.AWADDR   = _write_transaction_list[write_list_index].addr;
