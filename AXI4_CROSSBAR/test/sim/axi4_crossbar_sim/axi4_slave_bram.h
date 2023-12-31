@@ -3,11 +3,13 @@
 
 #include "axi4_interface.h"
 #include "axi4_transaction.h"
-#include <vector>
 
 class axi4_slave_bram {
     public:
         axi4_slave_bram();
+
+        std::vector<axi4_write_transaction>         write_transaction_completed_list;
+        std::vector<axi4_read_transaction>          read_transaction_completed_list;
 
         // return axi4 signal in this cycle
         axi4_interface  get_interface_signal();
@@ -17,6 +19,9 @@ class axi4_slave_bram {
 
         // get ram data
         uint64_t  get_bram_data(uint64_t addr, uint8_t size);
+
+        // get ram data to vector
+        std::vector<uint64_t> get_bram_data_to_vector(uint64_t addr, uint8_t size, uint8_t len);
 
         // reset
         void  reset();

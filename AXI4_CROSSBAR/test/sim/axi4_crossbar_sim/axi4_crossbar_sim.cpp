@@ -1,3 +1,4 @@
+#include <cstdio>
 #include <cstdlib>
 #include <ctime>
 #include <iostream>
@@ -13,6 +14,7 @@
 #include "axi4_master_bram.h"
 #include "axi4_slave_bram.h"
 #include "axi4_transaction.h"
+#include "axi4_transaction_random_generator.h"
 
 int main(int argc, char** argv) {
     Verilated::mkdir("logs");
@@ -40,20 +42,29 @@ int main(int argc, char** argv) {
     axi4_interface master_bram_interface[4];
     axi4_interface slave_bram_interface[4];
 
+    int read_transaction_num[4];
+    int write_transaction_num[4];
+
     axi4_read_transaction read_transaction;
     axi4_write_transaction write_transaction;
 
-    srand(time(nullptr));
+    srand((unsigned)time(NULL)); 
+    for (int i = 0; i < 4; i ++) {
+        write_transaction_num[i] = rand() % 8 + 1;
+        for (int j = 0; j < write_transaction_num[i]; j ++) {
+            axi4_transaction_random_generator(write_transaction);
+            master_bram[i].new_write_transaction(write_transaction);
+        }
+        read_transaction_num[i] = rand() % 8 + 1;
+        for (int j = 0; j < read_transaction_num[i]; j ++) {
+            axi4_transaction_random_generator(read_transaction);
+            master_bram[i].new_read_transaction(read_transaction);
+        }
+    }
+
     while(timeStamp < 10000) {
-
         top->clk = timeStamp % 2;
-
-        if (timeStamp < 10) {
-            top->rstn = 0;
-        }
-        else {
-            top->rstn = 1;
-        }
+        top->rstn = 1;
         
         for (int i = 0; i < 4; i ++) {
             master_bram_interface[i] = master_bram[i].get_interface_signal();
@@ -168,6 +179,11 @@ int main(int argc, char** argv) {
         top->eval();
         tfp->dump(timeStamp);
         timeStamp ++;
+    }
+
+    for (int i = 0; i < 4; i ++) {
+        master_bram[i].reset();
+        slave_bram[i].reset();
     }
 
     // Final model cleanup
