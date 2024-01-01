@@ -266,7 +266,7 @@ module AXI4_CROSSBAR(
 
             ADDRESS_CHECK ar_check(
                 .addr(axi4_master_interface.ARADDR[genvar_master_index]),
-                .valid(axi4_master_interface.ARVALID[genvar_master_index] & !r_buf_full[AWID_extend[genvar_master_index]]),
+                .valid(axi4_master_interface.ARVALID[genvar_master_index] & !r_buf_full[ARID_extend[genvar_master_index]]),
                 .res(ar_slave_select[genvar_master_index])
             );
 

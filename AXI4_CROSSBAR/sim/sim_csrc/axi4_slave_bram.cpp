@@ -115,7 +115,7 @@ void axi4_slave_bram::handle_interaction(const axi4_interface& interface) {
     // nothing to do
 
     // R
-    if (!_interface.RVALID && !_read_transaction_list.empty()) { 
+    if (!_read_transaction_list.empty()) { 
         int id = rand() % 64;
         int try_count = 0;
         int read_list_index = list_search_with_id(_read_transaction_list, id, AXI4_R);

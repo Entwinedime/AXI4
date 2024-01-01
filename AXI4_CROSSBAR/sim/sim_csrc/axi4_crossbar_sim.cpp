@@ -51,12 +51,12 @@ int main(int argc, char** argv) {
     srand((unsigned)time(NULL));
 
     for (int i = 0; i < 4; i ++) {
-        write_transaction_num[i] = rand() % 8 + 1;
+        write_transaction_num[i] = rand() % 256;
         for (int j = 0; j < write_transaction_num[i]; j ++) {
             axi4_transaction_random_generator(write_transaction);
             master_bram[i].new_write_transaction(write_transaction);
         }
-        read_transaction_num[i] = rand() % 8 + 1;
+        read_transaction_num[i] = rand() % 256;
         for (int j = 0; j < read_transaction_num[i]; j ++) {
             axi4_transaction_random_generator(read_transaction);
             master_bram[i].new_read_transaction(read_transaction);
@@ -209,7 +209,7 @@ int main(int argc, char** argv) {
             break;
         }
 
-        if (timeStamp > 1000000) {
+        if (timeStamp > 100000000) {
             std::cout << "Simulation timeout!" << std::endl;
             for (int i = 0; i < 4; i ++) {
                 std::cout << "master index: " << i << std::endl;
