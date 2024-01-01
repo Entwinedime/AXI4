@@ -4,6 +4,7 @@
 #include <memory>
 #include <cmath>
 
+#include <vector>
 #include <verilated.h>
 #include <verilated_vcd_c.h>
 
@@ -47,7 +48,8 @@ int main(int argc, char** argv) {
     axi4_read_transaction read_transaction;
     axi4_write_transaction write_transaction;
 
-    srand(time(nullptr));
+    srand((unsigned)time(NULL));
+
     for (int i = 0; i < 4; i ++) {
         write_transaction_num[i] = rand() % 8 + 1;
         for (int j = 0; j < write_transaction_num[i]; j ++) {
@@ -61,7 +63,7 @@ int main(int argc, char** argv) {
         }
     }
     
-    while(timeStamp < 10000) {
+    while(true) {
         top->clk = timeStamp % 2;
         top->rstn = 1;
         
@@ -80,21 +82,13 @@ int main(int argc, char** argv) {
             top->m_AWPROT[i]       = master_bram_interface[i].AWPROT;
             top->m_AWVALID[i]      = master_bram_interface[i].AWVALID;
 
-            master_bram_interface[i].AWREADY  = top->m_AWREADY[i];
-
             // W
             top->m_WDATA[i]        = master_bram_interface[i].WDATA;
             top->m_WSTRB[i]        = master_bram_interface[i].WSTRB;
             top->m_WLAST[i]        = master_bram_interface[i].WLAST;
             top->m_WVALID[i]       = master_bram_interface[i].WVALID;
 
-            master_bram_interface[i].WREADY  = top->m_WREADY[i];
-
             // B
-            master_bram_interface[i].BID     = top->m_BID[i];
-            master_bram_interface[i].BRESP   = top->m_BRESP[i];
-            master_bram_interface[i].BVALID  = top->m_BVALID[i];
-
             top->m_BREADY[i]       = master_bram_interface[i].BREADY;
 
             // AR
@@ -108,6 +102,44 @@ int main(int argc, char** argv) {
             top->m_ARPROT[i]       = master_bram_interface[i].ARPROT;
             top->m_ARVALID[i]      = master_bram_interface[i].ARVALID;
 
+            // R
+            top->m_RREADY[i]       = master_bram_interface[i].RREADY;
+
+            // AW
+            top->s_AWREADY[i]      = slave_bram_interface[i].AWREADY;
+            
+            // W
+            top->s_WREADY[i]       = slave_bram_interface[i].WREADY;
+
+            // B
+            top->s_BID[i]          = slave_bram_interface[i].BID;
+            top->s_BRESP[i]        = slave_bram_interface[i].BRESP;
+            top->s_BVALID[i]       = slave_bram_interface[i].BVALID;
+
+            // AR
+            top->s_ARREADY[i]      = slave_bram_interface[i].ARREADY;
+
+            // R
+            top->s_RID[i]          = slave_bram_interface[i].RID;
+            top->s_RDATA[i]        = slave_bram_interface[i].RDATA;
+            top->s_RSTRB[i]        = slave_bram_interface[i].RSTRB;
+            top->s_RLAST[i]        = slave_bram_interface[i].RLAST;
+            top->s_RVALID[i]       = slave_bram_interface[i].RVALID;
+        }
+
+        for (int i = 0; i < 4; i ++) {
+            // AW
+            master_bram_interface[i].AWREADY  = top->m_AWREADY[i];
+
+            // W
+            master_bram_interface[i].WREADY  = top->m_WREADY[i];
+
+            // B
+            master_bram_interface[i].BID     = top->m_BID[i];
+            master_bram_interface[i].BRESP   = top->m_BRESP[i];
+            master_bram_interface[i].BVALID  = top->m_BVALID[i];
+
+            // AR
             master_bram_interface[i].ARREADY  = top->m_ARREADY[i];
 
             // R
@@ -116,8 +148,6 @@ int main(int argc, char** argv) {
             master_bram_interface[i].RSTRB   = top->m_RSTRB[i];
             master_bram_interface[i].RLAST   = top->m_RLAST[i];
             master_bram_interface[i].RVALID  = top->m_RVALID[i];
-
-            top->m_RREADY[i]       = master_bram_interface[i].RREADY;
 
             // AW
             slave_bram_interface[i].AWID     = top->s_AWID[i];
@@ -130,21 +160,13 @@ int main(int argc, char** argv) {
             slave_bram_interface[i].AWPROT   = top->s_AWPROT[i];
             slave_bram_interface[i].AWVALID  = top->s_AWVALID[i];
 
-            top->s_AWREADY[i]      = slave_bram_interface[i].AWREADY;
-            
             // W
             slave_bram_interface[i].WDATA    = top->s_WDATA[i];
             slave_bram_interface[i].WSTRB    = top->s_WSTRB[i];
             slave_bram_interface[i].WLAST    = top->s_WLAST[i];
             slave_bram_interface[i].WVALID   = top->s_WVALID[i];
 
-            top->s_WREADY[i]       = slave_bram_interface[i].WREADY;
-
             // B
-            top->s_BID[i]          = slave_bram_interface[i].BID;
-            top->s_BRESP[i]        = slave_bram_interface[i].BRESP;
-            top->s_BVALID[i]       = slave_bram_interface[i].BVALID;
-
             slave_bram_interface[i].BREADY   = top->s_BREADY[i];
 
             // AR
@@ -158,27 +180,93 @@ int main(int argc, char** argv) {
             slave_bram_interface[i].ARPROT   = top->s_ARPROT[i];
             slave_bram_interface[i].ARVALID  = top->s_ARVALID[i];
 
-            top->s_ARREADY[i]      = slave_bram_interface[i].ARREADY;
-
             // R
-            top->s_RID[i]          = slave_bram_interface[i].RID;
-            top->s_RDATA[i]        = slave_bram_interface[i].RDATA;
-            top->s_RSTRB[i]        = slave_bram_interface[i].RSTRB;
-            top->s_RLAST[i]        = slave_bram_interface[i].RLAST;
-            top->s_RVALID[i]       = slave_bram_interface[i].RVALID;
-
             slave_bram_interface[i].RREADY   = top->s_RREADY[i];
         }
 
-        for (int i = 0; i < 4; i ++) {
-            master_bram[i].handle_interaction(master_bram_interface[i]);
-            slave_bram[i].handle_interaction(slave_bram_interface[i]);
+        if (top->clk == 1) {
+            for (int i = 0; i < 4; i ++) {
+                master_bram[i].handle_interaction(master_bram_interface[i]);
+                slave_bram[i].handle_interaction(slave_bram_interface[i]);
+            }
         }
 
         top->eval();
         tfp->dump(timeStamp);
         timeStamp ++;
+
+        bool is_finish = true;
+        for (int i = 0; i < 4; i ++) {
+            if (master_bram[i].write_transaction_completed_list.size() != write_transaction_num[i]) {
+                is_finish = false;
+            }
+            if (master_bram[i].read_transaction_completed_list.size() != read_transaction_num[i]) {
+                is_finish = false;
+            }
+        }
+
+        if (is_finish) {
+            break;
+        }
+
+        if (timeStamp > 1000000) {
+            std::cout << "Simulation timeout!" << std::endl;
+            for (int i = 0; i < 4; i ++) {
+                std::cout << "master index: " << i << std::endl;
+                std::cout << "    write transaction completed list size: " << master_bram[i].write_transaction_completed_list.size() << std::endl;
+                std::cout << "    read transaction completed list size: " << master_bram[i].read_transaction_completed_list.size() << std::endl;
+                std::cout << "    write transaction num: " << write_transaction_num[i] << std::endl;
+                std::cout << "    read transaction num: " << read_transaction_num[i] << std::endl;
+            }
+            break;
+        }
     }
+
+    int error_count = 0;
+
+    std::cout << std::hex;
+
+    for (int i = 0; i < 4; i ++) {
+        for (int j = 0; j < master_bram[i].read_transaction_completed_list.size(); j ++) {
+            std::vector<uint64_t>   read_data;
+            int slave_index =   (master_bram[i].read_transaction_completed_list[j].addr < 0x1000) ? 0 : 
+                                (master_bram[i].read_transaction_completed_list[j].addr < 0x2000) ? 1 :
+                                (master_bram[i].read_transaction_completed_list[j].addr < 0x3000) ? 2 :
+                                (master_bram[i].read_transaction_completed_list[j].addr < 0x4000) ? 3 : 0;
+            read_data = slave_bram[slave_index].get_bram_data_to_vector(master_bram[i].read_transaction_completed_list[j].addr, master_bram[i].read_transaction_completed_list[j].size, master_bram[i].read_transaction_completed_list[j].len);
+            if (read_data != master_bram[i].read_transaction_completed_list[j].read_buffer) {
+                error_count ++;
+                std::cout << "Read Error: " << std::endl;
+                std::cout << "    master index: " << i << std::endl;
+                std::cout << "    slave index: " << slave_index << std::endl;
+                std::cout << "    id: " << (int)master_bram[i].read_transaction_completed_list[j].id << std::endl;
+                std::cout << "    addr: " << (int)master_bram[i].read_transaction_completed_list[j].addr << std::endl;
+                std::cout << "    size: " << (int)master_bram[i].read_transaction_completed_list[j].size << std::endl;
+                std::cout << "    len: " << (int)master_bram[i].read_transaction_completed_list[j].len << std::endl << std::endl;
+            }
+        }
+
+        for (int j = 0; j < slave_bram[i].write_transaction_completed_list.size(); j ++) {
+            std::vector<uint64_t>   write_data;
+            int master_index = slave_bram[i].write_transaction_completed_list[j].id / 16;
+            write_data = master_bram[master_index].get_bram_data_to_vector(slave_bram[i].write_transaction_completed_list[j].addr, slave_bram[i].write_transaction_completed_list[j].size, slave_bram[i].write_transaction_completed_list[j].len);
+            if (write_data != slave_bram[i].write_transaction_completed_list[j].write_buffer) {
+                error_count ++;
+                std::cout << "Write Error: " << std::endl;
+                std::cout << "    master index: " << master_index << std::endl;
+                std::cout << "    slave index: " << i << std::endl;
+                std::cout << "    id: " << (int)slave_bram[i].write_transaction_completed_list[j].id << std::endl;
+                std::cout << "    addr: " << (int)slave_bram[i].write_transaction_completed_list[j].addr << std::endl;
+                std::cout << "    size: " << (int)slave_bram[i].write_transaction_completed_list[j].size << std::endl;
+                std::cout << "    len: " << (int)slave_bram[i].write_transaction_completed_list[j].len << std::endl << std::endl;
+            }
+        }
+    }
+
+    std::cout << std::dec;
+
+    std::cout << "Simulation finished!" << std::endl;
+    std::cout << "Error count: " << error_count << std::endl;
 
     for (int i = 0; i < 4; i ++) {
         master_bram[i].reset();

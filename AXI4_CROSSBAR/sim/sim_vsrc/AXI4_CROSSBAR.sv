@@ -635,8 +635,8 @@ module AXI4_CROSSBAR(
         for (genvar_slave_index = 0; genvar_slave_index < `SLAVE_NUM; genvar_slave_index ++) begin
 
             // master_select generate
-            assign r_master_select[genvar_slave_index] =((r_buf_head_data[axi4_slave_interface.RID[genvar_slave_index]] == (1 << genvar_slave_index)) | r_buf_empty[axi4_slave_interface.RID[genvar_slave_index]]) ? (1 << RID_head[genvar_slave_index]) : 0;
-            assign b_master_select[genvar_slave_index] = (1 << BID_head[genvar_slave_index]);
+            assign r_master_select[genvar_slave_index] = axi4_slave_interface.RVALID[genvar_slave_index] && (r_buf_head_data[axi4_slave_interface.RID[genvar_slave_index]] == (1 << genvar_slave_index)) ? (1 << RID_head[genvar_slave_index]) : 0;
+            assign b_master_select[genvar_slave_index] = axi4_slave_interface.BVALID[genvar_slave_index] ? (1 << BID_head[genvar_slave_index]) : 0;
 
             // R
             VAL_SIG_GEN_TO_SENDER #(

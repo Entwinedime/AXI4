@@ -1,8 +1,11 @@
 #include "axi4_transaction_random_generator.h"
 #include "axi4_transaction.h"
 
+#include <ctime>
+#include <cstdlib>
+
+
 void axi4_transaction_random_generator(axi4_write_transaction& transaction) {
-    srand((unsigned)time(NULL)); 
     transaction.id = rand() % 16;
     transaction.addr = rand() % 16384;
     transaction.size = rand() % 4;
@@ -14,7 +17,6 @@ void axi4_transaction_random_generator(axi4_write_transaction& transaction) {
 }
 
 void axi4_transaction_random_generator(axi4_read_transaction& transaction) {
-    srand((unsigned)time(NULL)); 
     transaction.id = rand() % 16;
     transaction.addr = rand() % 16384;
     transaction.size = rand() % 4;

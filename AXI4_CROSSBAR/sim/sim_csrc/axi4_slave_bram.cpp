@@ -1,6 +1,8 @@
 #include "axi4_slave_bram.h"
 #include "axi4_transaction.h"
 
+#include <iostream>
+
 axi4_slave_bram::axi4_slave_bram() {
     write_transaction_completed_list.clear();
     read_transaction_completed_list.clear();
@@ -11,8 +13,7 @@ axi4_slave_bram::axi4_slave_bram() {
     _interface.WREADY = 1;
     _interface.RSTRB = 0xff;
 
-    srand((unsigned)time(NULL)); 
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < 4096; i++) {
         _bram_data[i] = (uint8_t)rand();
     }
 
@@ -114,22 +115,24 @@ void axi4_slave_bram::handle_interaction(const axi4_interface& interface) {
     // nothing to do
 
     // R
-    if (!_interface.RVALID && !_read_transaction_list.empty()) {
-        srand((unsigned)time(NULL)); 
-        int id = rand() % 16;
+    if (!_interface.RVALID && !_read_transaction_list.empty()) { 
+        int id = rand() % 64;
         int try_count = 0;
         int read_list_index = list_search_with_id(_read_transaction_list, id, AXI4_R);
         while (read_list_index == -1) {
-            id = rand() % 16;
+            id = rand() % 64;
             try_count ++;
             read_list_index = list_search_with_id(_read_transaction_list, id, AXI4_R);
-            if (try_count > 16) {
+            if (try_count > 32) {
                 break;
             }
         }
+
         if (read_list_index != -1) {
             _interface.RID = _read_transaction_list[read_list_index].id;
             _interface.RDATA = axi4_slave_bram::get_bram_data(_read_transaction_list[read_list_index].addr + _read_transaction_list[read_list_index].read_count * (1 << _read_transaction_list[read_list_index].size), _read_transaction_list[read_list_index].size);
+            // std::cout << "RDATA: " << std::hex << _interface.RDATA << std::endl;
+            _interface.RLAST = (_read_transaction_list[read_list_index].len == _read_transaction_list[read_list_index].read_count);
             _interface.RVALID = 1;
         }
     }
@@ -145,8 +148,8 @@ uint64_t axi4_slave_bram::get_bram_data(uint64_t addr, uint8_t size) {
 
 std::vector<uint64_t> axi4_slave_bram::get_bram_data_to_vector(uint64_t addr, uint8_t size, uint8_t len) {
     std::vector<uint64_t> data;
-    for (size_t i = 0; i < len; ++i) {
-        data.push_back(axi4_slave_bram::get_bram_data(addr + i * (1 << size), (1 << size)));
+    for (size_t i = 0; i < len + 1; ++i) {
+        data.push_back(axi4_slave_bram::get_bram_data(addr + i * (1 << size), size));
     }
     return data;
 }
@@ -161,8 +164,7 @@ void axi4_slave_bram::reset() {
     _interface.WREADY = 1;
     _interface.RSTRB = 0xff;
 
-    srand((unsigned)time(NULL)); 
-    for (int i = 0; i < 1024; i++) {
+    for (int i = 0; i < 4096; i++) {
         _bram_data[i] = (uint8_t)rand();
     }
 
