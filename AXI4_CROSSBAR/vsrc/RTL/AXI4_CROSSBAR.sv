@@ -1,4 +1,10 @@
-`include "./include/Interface.sv"
+`ifndef _AXI4_CROSSBAR_SIM_
+    `include "../include/config.sv"
+    `include "../include/interface.sv"
+`else
+    `include "config.sv"
+    `include "interface.sv"
+`endif
 
 module AXI4_CROSSBAR(
     input       logic                                   clk,
@@ -258,13 +264,13 @@ module AXI4_CROSSBAR(
         for (genvar_master_index = 0; genvar_master_index < `MASTER_NUM; genvar_master_index ++) begin
 
             // slave_select generate (address space)
-            ADDRESS_CHECK aw_check(
+            SLAVE_ADDRESS_CHECK aw_check(
                 .addr(axi4_master_interface.AWADDR[genvar_master_index]),
                 .valid(axi4_master_interface.AWVALID[genvar_master_index] & !w_buf_full[genvar_master_index]),
                 .res(aw_slave_select[genvar_master_index])
             );
 
-            ADDRESS_CHECK ar_check(
+            SLAVE_ADDRESS_CHECK ar_check(
                 .addr(axi4_master_interface.ARADDR[genvar_master_index]),
                 .valid(axi4_master_interface.ARVALID[genvar_master_index] & !r_buf_full[ARID_extend[genvar_master_index]]),
                 .res(ar_slave_select[genvar_master_index])

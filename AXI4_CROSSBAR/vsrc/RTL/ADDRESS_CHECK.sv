@@ -9,12 +9,21 @@
 0x80000000 - 0x88000000: RAM
 */
 
-module
-    ADDRESS_CHECK (
-        input       logic                   [31 : 0]        addr,
-        input       logic                                   valid,
-        output      logic                   [7 : 0]         res
+`ifndef _AXI4_CROSSBAR_SIM_
+    `include "../include/config.sv"
+    `include "../include/interface.sv"
+`else
+    `include "config.sv"
+    `include "interface.sv"
+`endif
+
+module SLAVE_ADDRESS_CHECK (
+        input       logic                   [31 : 0]                    addr,
+        input       logic                                               valid,
+        output      logic                   [`SLAVE_NUM - 1 : 0]        res
     );
+
+    `ifndef _AXI4_CROSSBAR_SIM_
 
     always @(*) begin
         if(!valid) res = 8'H0;
@@ -28,5 +37,18 @@ module
         else if(addr >= 32'H80000000 && addr < 32'H88000000) res = {7'H0, 1'H1};
         else res = 8'H0;
     end
+
+    `else
+
+    always @(*) begin
+        if(!valid) res = 4'H0;
+        else if(addr < 32'H00001000) res = {3'H0, 1'H1};
+        else if(addr >= 32'H00001000 && addr < 32'H00002000) res = {2'H0, 1'H1, 1'H0};
+        else if(addr >= 32'H00002000 && addr < 32'H00003000) res = {1'H0, 1'H1, 2'H0};
+        else if(addr >= 32'H00003000 && addr < 32'H00004000) res = {1'H1, 3'H0};
+        else res = 4'H0;
+    end
+
+    `endif
     
 endmodule

@@ -1,4 +1,10 @@
-`include "./Interface.sv"
+`ifndef _AXI4_CROSSBAR_SIM_
+    `include "../include/config.sv"
+    `include "../include/interface.sv"
+`else
+    `include "config.sv"
+    `include "interface.sv"
+`endif
 
 module SIM_TOP(
     input           logic                                                               clk,

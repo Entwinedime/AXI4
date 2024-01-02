@@ -1,18 +1,7 @@
 `ifndef _AXI4_INTERFACE_SV_
 `define _AXI4_INTERFACE_SV_
 
-`define W_ID_LEN        4
-`define R_ID_LEN        4
-`define EXTRA_ID_LEN    $clog2(`MASTER_NUM)
-
-`define ADDR_WIDTH      32
-`define DATA_WIDTH      64
-
-`define MASTER_NUM      4
-`define SLAVE_NUM       8
-
-`define W_BUF_DEPTH     2
-`define R_BUF_DEPTH     2
+`include "config.sv"
 
 interface AXI4_Master_Interface;
 

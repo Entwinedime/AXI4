@@ -1,25 +1,36 @@
-OBJ_DIR   			= $(abspath ./build)
-CSRC_DIR 			= $(abspath ./sim_csrc)
-VSRC_DIR 			= $(abspath ./sim_vsrc)
+OBJ_DIR             = $(abspath ./build)
+CSRC_DIR            = $(abspath ./csrc)
+VSRC_DIR            = $(abspath ../vsrc)
 
-VERILOG_TOP 		= $(VSRC_DIR)/SIM_TOP.sv
-VFLAGS 				= --trace --cc --exe -O3 --threads-dpi all -I$(VSRC_DIR) -Mdir $(OBJ_DIR) -DDIFF
-CINC_PATH 			= -CFLAGS -I$(CSRC_DIR)/include 
-CSRC 				= $(shell find $(CSRC_DIR) -name "*.c*")
-VSRC 				= $(shell find $(VSRC_DIR) -name "*.sv")
-VBIN 				=  $(OBJ_DIR)/$(addprefix V, $(basename $(notdir $(VERILOG_TOP))))
-REWRITE 			= $(abspath ./rewrite.mk)
+TOP_MODULE          = SIM_TOP
 
-COLOR_RED   		= \033[1;31m
-COLOR_GREEN 		= \033[1;32m
-COLOR_YELLOW 		= \033[33m
-COLOR_NONE  		= \033[0m
+VFLAGS              =   --trace --cc --exe --build \
+						+define+_AXI4_CROSSBAR_SIM_ \
+						+define+MASTER_NUM=4 \
+						+define+SLAVE_NUM=4 \
+						+define+W_ID_LEN=4 \
+						+define+R_ID_LEN=4 \
+						+define+ADDR_WIDTH=32 \
+						+define+DATA_WIDTH=64 \
+						--top-module $(TOP_MODULE) -Mdir $(OBJ_DIR)
+
+VINCLUDE            = -I$(VSRC_DIR)/include
+CINCLUDE            = -CFLAGS -I$(CSRC_DIR)/include 
+
+CSRC                = $(shell find $(CSRC_DIR) -name "*.c*")
+VSRC                = $(shell find $(VSRC_DIR) -name "*.sv")
+
+VBIN                = $(OBJ_DIR)/$(addprefix V, $(basename $(notdir $(TOP_MODULE))))
+REWRITE             = $(abspath ./rewrite.mk)
+
+COLOR_NONE          = \033[0m
+COLOR_YELLOW        = \033[33m
 
 .PHONY: run clean
 
 $(VBIN): $(CSRC) $(VSRC)
 	@echo "$(COLOR_YELLOW)[VERILATE]$(COLOR_NONE)"
-	verilator $(VFLAGS) $(CSRC) $(CINC_PATH) $(VERILOG_TOP)
+	verilator $(VFLAGS) $(VSRC) $(VINCLUDE) $(CSRC) $(CINCLUDE)
 	@make -s -C $(OBJ_DIR) -f $(REWRITE)
 
 run: $(VBIN)
