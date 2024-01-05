@@ -278,7 +278,12 @@ module AXI4_CROSSBAR(
 
             assign w_slave_select[genvar_master_index] = (!w_buf_empty[genvar_master_index]) ? w_buf_head_data[genvar_master_index] : 0;
 
-            // AR
+        end
+
+        // AR
+        for (genvar_master_index = 0; genvar_master_index < `MASTER_NUM; genvar_master_index ++) begin
+
+            // s_ARREADY
             VAL_SIG_GEN_TO_SENDER #(
                 .WIDTH(1),
                 .NUM(`SLAVE_NUM)
@@ -290,137 +295,142 @@ module AXI4_CROSSBAR(
                 .val_sig(axi4_master_interface.ARREADY[genvar_master_index])
             );
 
-            for (genvar_slave_index = 0; genvar_slave_index < `SLAVE_NUM; genvar_slave_index ++) begin
+        end
+
+        for (genvar_slave_index = 0; genvar_slave_index < `SLAVE_NUM; genvar_slave_index ++) begin
                 
-                // s_ARID
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(`EXTRA_ID_LEN + `R_ID_LEN),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_arid_gen
-                (
-                    .signal(ARID_extend),
-                    .select(ar_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.ARID[genvar_slave_index])
-                );
+            // s_ARID
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(`EXTRA_ID_LEN + `R_ID_LEN),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_arid_gen
+            (
+                .signal(ARID_extend),
+                .select(ar_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.ARID[genvar_slave_index])
+            );
 
-                // s_ARADDR
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(`ADDR_WIDTH),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_araddr_gen
-                (
-                    .signal(axi4_master_interface.ARADDR),
-                    .select(ar_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.ARADDR[genvar_slave_index])
-                );
+            // s_ARADDR
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(`ADDR_WIDTH),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_araddr_gen
+            (
+                .signal(axi4_master_interface.ARADDR),
+                .select(ar_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.ARADDR[genvar_slave_index])
+            );
 
-                // s_ARLEN
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(8),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_arlen_gen
-                (
-                    .signal(axi4_master_interface.ARLEN),
-                    .select(ar_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.ARLEN[genvar_slave_index])
-                );
+            // s_ARLEN
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(8),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_arlen_gen
+            (
+                .signal(axi4_master_interface.ARLEN),
+                .select(ar_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.ARLEN[genvar_slave_index])
+            );
 
-                // s_ARSIZE
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(3),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_arsize_gen
-                (
-                    .signal(axi4_master_interface.ARSIZE),
-                    .select(ar_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.ARSIZE[genvar_slave_index])
-                );
+            // s_ARSIZE
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(3),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_arsize_gen
+            (
+                .signal(axi4_master_interface.ARSIZE),
+                .select(ar_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.ARSIZE[genvar_slave_index])
+            );
 
-                // s_ARBURST
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(2),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_arburst_gen
-                (
-                    .signal(axi4_master_interface.ARBURST),
-                    .select(ar_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.ARBURST[genvar_slave_index])
-                );
+            // s_ARBURST
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(2),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_arburst_gen
+            (
+                .signal(axi4_master_interface.ARBURST),
+                .select(ar_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.ARBURST[genvar_slave_index])
+            );
 
-                // s_ARLOCK
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(2),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_arlock_gen
-                (
-                    .signal(axi4_master_interface.ARLOCK),
-                    .select(ar_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.ARLOCK[genvar_slave_index])
-                );
+            // s_ARLOCK
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(2),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_arlock_gen
+            (
+                .signal(axi4_master_interface.ARLOCK),
+                .select(ar_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.ARLOCK[genvar_slave_index])
+            );
 
-                // s_ARCACHE
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(4),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_arcache_gen
-                (
-                    .signal(axi4_master_interface.ARCACHE),
-                    .select(ar_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.ARCACHE[genvar_slave_index])
-                );
+            // s_ARCACHE
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(4),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_arcache_gen
+            (
+                .signal(axi4_master_interface.ARCACHE),
+                .select(ar_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.ARCACHE[genvar_slave_index])
+            );
 
-                // s_ARPROT
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(3),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_arport_gen
-                (
-                    .signal(axi4_master_interface.ARPROT),
-                    .select(ar_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.ARPROT[genvar_slave_index])
-                );
+            // s_ARPROT
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(3),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_arport_gen
+            (
+                .signal(axi4_master_interface.ARPROT),
+                .select(ar_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.ARPROT[genvar_slave_index])
+            );
 
-                // s_ARVALID
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(1),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_arvalid_gen
-                (
-                    .signal(axi4_master_interface.ARVALID),
-                    .select(ar_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.ARVALID[genvar_slave_index])
-                );
+            // s_ARVALID
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(1),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_arvalid_gen
+            (
+                .signal(axi4_master_interface.ARVALID),
+                .select(ar_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.ARVALID[genvar_slave_index])
+            );
 
-            end
+        end
 
-            // AW
+        // AW
+        for (genvar_master_index = 0; genvar_master_index < `MASTER_NUM; genvar_master_index ++) begin
+
+            // m_AWREADY
             VAL_SIG_GEN_TO_SENDER #(
                 .WIDTH(1),
                 .NUM(`SLAVE_NUM)
@@ -432,137 +442,141 @@ module AXI4_CROSSBAR(
                 .val_sig(axi4_master_interface.AWREADY[genvar_master_index])
             );
 
-            for (genvar_slave_index = 0; genvar_slave_index < `SLAVE_NUM; genvar_slave_index ++) begin
+        end
 
-                // s_AWID
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(`EXTRA_ID_LEN + `W_ID_LEN),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_awid_gen
-                (
-                    .signal(AWID_extend),
-                    .select(aw_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.AWID[genvar_slave_index])
-                );
+        for (genvar_slave_index = 0; genvar_slave_index < `SLAVE_NUM; genvar_slave_index ++) begin
 
-                // s_AWADDR
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(`ADDR_WIDTH),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_awaddr_gen
-                (
-                    .signal(axi4_master_interface.AWADDR),
-                    .select(aw_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.AWADDR[genvar_slave_index])
-                );
+            // s_AWID
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(`EXTRA_ID_LEN + `W_ID_LEN),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_awid_gen
+            (
+                .signal(AWID_extend),
+                .select(aw_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.AWID[genvar_slave_index])
+            );
 
-                // s_AWLEN
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(8),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_awlen_gen
-                (
-                    .signal(axi4_master_interface.AWLEN),
-                    .select(aw_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.AWLEN[genvar_slave_index])
-                );
+            // s_AWADDR
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(`ADDR_WIDTH),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_awaddr_gen
+            (
+                .signal(axi4_master_interface.AWADDR),
+                .select(aw_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.AWADDR[genvar_slave_index])
+            );
 
-                // s_AWSIZE
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(3),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_awsize_gen
-                (
-                    .signal(axi4_master_interface.AWSIZE),
-                    .select(aw_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.AWSIZE[genvar_slave_index])
-                );
+            // s_AWLEN
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(8),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_awlen_gen
+            (
+                .signal(axi4_master_interface.AWLEN),
+                .select(aw_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.AWLEN[genvar_slave_index])
+            );
 
-                // s_AWBURST
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(2),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_awburst_gen
-                (
-                    .signal(axi4_master_interface.AWBURST),
-                    .select(aw_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.AWBURST[genvar_slave_index])
-                );
+            // s_AWSIZE
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(3),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_awsize_gen
+            (
+                .signal(axi4_master_interface.AWSIZE),
+                .select(aw_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.AWSIZE[genvar_slave_index])
+            );
 
-                // s_AWLOCK
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(2),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index) 
-                )
-                s_awlock_gen
-                (
-                    .signal(axi4_master_interface.AWLOCK),
-                    .select(aw_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.AWLOCK[genvar_slave_index])
-                );
+            // s_AWBURST
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(2),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_awburst_gen
+            (
+                .signal(axi4_master_interface.AWBURST),
+                .select(aw_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.AWBURST[genvar_slave_index])
+            );
 
-                // s_AWCACHE
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(4),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index) 
-                )
-                s_awcache_gen
-                (
-                    .signal(axi4_master_interface.AWCACHE),
-                    .select(aw_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.AWCACHE[genvar_slave_index])
-                );
+            // s_AWLOCK
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(2),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index) 
+            )
+            s_awlock_gen
+            (
+                .signal(axi4_master_interface.AWLOCK),
+                .select(aw_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.AWLOCK[genvar_slave_index])
+            );
 
-                // s_AWPROT
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(3),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index) 
-                )
-                s_awprot_gen
-                (
-                    .signal(axi4_master_interface.AWPROT),
-                    .select(aw_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.AWPROT[genvar_slave_index])
-                );
+            // s_AWCACHE
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(4),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index) 
+            )
+            s_awcache_gen
+            (
+                .signal(axi4_master_interface.AWCACHE),
+                .select(aw_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.AWCACHE[genvar_slave_index])
+            );
 
-                // s_AWVALID
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(1),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_awvalid_gen
-                (
-                    .signal(axi4_master_interface.AWVALID),
-                    .select(aw_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.AWVALID[genvar_slave_index])
-                );
+            // s_AWPROT
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(3),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index) 
+            )
+            s_awprot_gen
+            (
+                .signal(axi4_master_interface.AWPROT),
+                .select(aw_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.AWPROT[genvar_slave_index])
+            );
 
-            end
+            // s_AWVALID
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(1),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_awvalid_gen
+            (
+                .signal(axi4_master_interface.AWVALID),
+                .select(aw_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.AWVALID[genvar_slave_index])
+            );
 
-            // W
+        end
+
+        for (genvar_master_index = 0; genvar_master_index < `MASTER_NUM; genvar_master_index ++) begin
+
+            // s_WREADY
             VAL_SIG_GEN_TO_SENDER #(
                 .WIDTH(1),
                 .NUM(`SLAVE_NUM)
@@ -573,68 +587,68 @@ module AXI4_CROSSBAR(
                 .select(w_slave_select_with_priority[genvar_master_index]),
                 .val_sig(axi4_master_interface.WREADY[genvar_master_index])
             );
-
-            for (genvar_slave_index = 0; genvar_slave_index < `SLAVE_NUM; genvar_slave_index ++) begin
-
-                // s_WDATA
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(`DATA_WIDTH),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_wdata_gen
-                (
-                    .signal(axi4_master_interface.WDATA),
-                    .select(w_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.WDATA[genvar_slave_index])
-                );
-
-                // s_WSTRB
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(`DATA_WIDTH/8),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_wstrb_gen
-                (
-                    .signal(axi4_master_interface.WSTRB),
-                    .select(w_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.WSTRB[genvar_slave_index])
-                );
-
-                // s_WLAST
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(1),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_wlast_gen
-                (
-                    .signal(axi4_master_interface.WLAST),
-                    .select(w_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.WLAST[genvar_slave_index])
-                );
-
-                // s_WVALID
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(1),
-                    .SENDER_NUM(`MASTER_NUM),
-                    .RECEIVER_NUM(`SLAVE_NUM),
-                    .RECEIVER_CHOSEN(genvar_slave_index)
-                )
-                s_awvalid_gen
-                (
-                    .signal(axi4_master_interface.WVALID),
-                    .select(w_slave_select_with_priority),
-                    .val_sig(axi4_slave_interface.WVALID[genvar_slave_index])
-                );
-
-            end
+        
         end
 
+        for (genvar_slave_index = 0; genvar_slave_index < `SLAVE_NUM; genvar_slave_index ++) begin
+
+            // s_WDATA
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(`DATA_WIDTH),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_wdata_gen
+            (
+                .signal(axi4_master_interface.WDATA),
+                .select(w_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.WDATA[genvar_slave_index])
+            );
+
+            // s_WSTRB
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(`DATA_WIDTH/8),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_wstrb_gen
+            (
+                .signal(axi4_master_interface.WSTRB),
+                .select(w_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.WSTRB[genvar_slave_index])
+            );
+
+            // s_WLAST
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(1),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_wlast_gen
+            (
+                .signal(axi4_master_interface.WLAST),
+                .select(w_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.WLAST[genvar_slave_index])
+            );
+
+            // s_WVALID
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(1),
+                .SENDER_NUM(`MASTER_NUM),
+                .RECEIVER_NUM(`SLAVE_NUM),
+                .RECEIVER_CHOSEN(genvar_slave_index)
+            )
+            s_awvalid_gen
+            (
+                .signal(axi4_master_interface.WVALID),
+                .select(w_slave_select_with_priority),
+                .val_sig(axi4_slave_interface.WVALID[genvar_slave_index])
+            );
+
+        end
 
         /*slave as sender*/
 
@@ -644,7 +658,12 @@ module AXI4_CROSSBAR(
             assign r_master_select[genvar_slave_index] = axi4_slave_interface.RVALID[genvar_slave_index] && (r_buf_head_data[axi4_slave_interface.RID[genvar_slave_index]] == (1 << genvar_slave_index)) ? (1 << RID_head[genvar_slave_index]) : 0;
             assign b_master_select[genvar_slave_index] = axi4_slave_interface.BVALID[genvar_slave_index] ? (1 << BID_head[genvar_slave_index]) : 0;
 
-            // R
+        end
+
+        // R
+        for (genvar_slave_index = 0; genvar_slave_index < `SLAVE_NUM; genvar_slave_index ++) begin
+
+            // s_RREADY
             VAL_SIG_GEN_TO_SENDER #(
                 .WIDTH(1),
                 .NUM(`MASTER_NUM)
@@ -655,81 +674,86 @@ module AXI4_CROSSBAR(
                 .select(r_master_select_with_priority[genvar_slave_index]),
                 .val_sig(axi4_slave_interface.RREADY[genvar_slave_index])
             );
+        
+        end
 
-            for (genvar_master_index = 0; genvar_master_index < `MASTER_NUM; genvar_master_index ++) begin
+        for (genvar_master_index = 0; genvar_master_index < `MASTER_NUM; genvar_master_index ++) begin
 
-                // m_RID
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(`R_ID_LEN),
-                    .SENDER_NUM(`SLAVE_NUM),
-                    .RECEIVER_NUM(`MASTER_NUM),
-                    .RECEIVER_CHOSEN(genvar_master_index)
-                )
-                m_rid_gen
-                (
-                    .signal(RID_tail),
-                    .select(r_master_select_with_priority),
-                    .val_sig(axi4_master_interface.RID[genvar_master_index])
-                );
+            // m_RID
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(`R_ID_LEN),
+                .SENDER_NUM(`SLAVE_NUM),
+                .RECEIVER_NUM(`MASTER_NUM),
+                .RECEIVER_CHOSEN(genvar_master_index)
+            )
+            m_rid_gen
+            (
+                .signal(RID_tail),
+                .select(r_master_select_with_priority),
+                .val_sig(axi4_master_interface.RID[genvar_master_index])
+            );
 
-                // m_RDATA
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(`DATA_WIDTH),
-                    .SENDER_NUM(`SLAVE_NUM),
-                    .RECEIVER_NUM(`MASTER_NUM),
-                    .RECEIVER_CHOSEN(genvar_master_index)
-                )
-                m_rdata_gen
-                (
-                    .signal(axi4_slave_interface.RDATA),
-                    .select(r_master_select_with_priority),
-                    .val_sig(axi4_master_interface.RDATA[genvar_master_index])
-                );
+            // m_RDATA
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(`DATA_WIDTH),
+                .SENDER_NUM(`SLAVE_NUM),
+                .RECEIVER_NUM(`MASTER_NUM),
+                .RECEIVER_CHOSEN(genvar_master_index)
+            )
+            m_rdata_gen
+            (
+                .signal(axi4_slave_interface.RDATA),
+                .select(r_master_select_with_priority),
+                .val_sig(axi4_master_interface.RDATA[genvar_master_index])
+            );
 
-                // m_RSTRB
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(`DATA_WIDTH/8),
-                    .SENDER_NUM(`SLAVE_NUM),
-                    .RECEIVER_NUM(`MASTER_NUM),
-                    .RECEIVER_CHOSEN(genvar_master_index)
-                )
-                m_rstrb_gen
-                (
-                    .signal(axi4_slave_interface.RSTRB),
-                    .select(r_master_select_with_priority),
-                    .val_sig(axi4_master_interface.RSTRB[genvar_master_index])
-                );
+            // m_RSTRB
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(`DATA_WIDTH/8),
+                .SENDER_NUM(`SLAVE_NUM),
+                .RECEIVER_NUM(`MASTER_NUM),
+                .RECEIVER_CHOSEN(genvar_master_index)
+            )
+            m_rstrb_gen
+            (
+                .signal(axi4_slave_interface.RSTRB),
+                .select(r_master_select_with_priority),
+                .val_sig(axi4_master_interface.RSTRB[genvar_master_index])
+            );
 
-                // m_RLAST
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(1),
-                    .SENDER_NUM(`SLAVE_NUM),
-                    .RECEIVER_NUM(`MASTER_NUM),
-                    .RECEIVER_CHOSEN(genvar_master_index)
-                )
-                m_rlast_gen
-                (
-                    .signal(axi4_slave_interface.RLAST),
-                    .select(r_master_select_with_priority),
-                    .val_sig(axi4_master_interface.RLAST[genvar_master_index])
-                );
-                // m_RVALID
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(1),
-                    .SENDER_NUM(`SLAVE_NUM),
-                    .RECEIVER_NUM(`MASTER_NUM),
-                    .RECEIVER_CHOSEN(genvar_master_index)
-                )
-                m_rvalid_gen
-                (
-                    .signal(axi4_slave_interface.RVALID),
-                    .select(r_master_select_with_priority),
-                    .val_sig(axi4_master_interface.RVALID[genvar_master_index])
-                );
+            // m_RLAST
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(1),
+                .SENDER_NUM(`SLAVE_NUM),
+                .RECEIVER_NUM(`MASTER_NUM),
+                .RECEIVER_CHOSEN(genvar_master_index)
+            )
+            m_rlast_gen
+            (
+                .signal(axi4_slave_interface.RLAST),
+                .select(r_master_select_with_priority),
+                .val_sig(axi4_master_interface.RLAST[genvar_master_index])
+            );
+            // m_RVALID
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(1),
+                .SENDER_NUM(`SLAVE_NUM),
+                .RECEIVER_NUM(`MASTER_NUM),
+                .RECEIVER_CHOSEN(genvar_master_index)
+            )
+            m_rvalid_gen
+            (
+                .signal(axi4_slave_interface.RVALID),
+                .select(r_master_select_with_priority),
+                .val_sig(axi4_master_interface.RVALID[genvar_master_index])
+            );
 
-            end
+        end
 
-            // B
+        // B
+        for (genvar_slave_index = 0; genvar_slave_index < `SLAVE_NUM; genvar_slave_index ++) begin
+
+            // s_BREADY
             VAL_SIG_GEN_TO_SENDER #(
                 .WIDTH(1),
                 .NUM(`MASTER_NUM)
@@ -741,52 +765,54 @@ module AXI4_CROSSBAR(
                 .val_sig(axi4_slave_interface.BREADY[genvar_slave_index])
             );
 
-            for (genvar_master_index = 0; genvar_master_index < `MASTER_NUM; genvar_master_index ++) begin
-                
-                // m_BID
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(`W_ID_LEN),
-                    .SENDER_NUM(`SLAVE_NUM),
-                    .RECEIVER_NUM(`MASTER_NUM),
-                    .RECEIVER_CHOSEN(genvar_master_index)
-                )
-                m_bid_gen
-                (
-                    .signal(BID_tail),
-                    .select(b_master_select_with_priority),
-                    .val_sig(axi4_master_interface.BID[genvar_master_index])
-                );
-
-                // m_BRESP
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(2),
-                    .SENDER_NUM(`SLAVE_NUM),
-                    .RECEIVER_NUM(`MASTER_NUM),
-                    .RECEIVER_CHOSEN(genvar_master_index)
-                )
-                m_bresp_gen
-                (
-                    .signal(axi4_slave_interface.BRESP),
-                    .select(b_master_select_with_priority),
-                    .val_sig(axi4_master_interface.BRESP[genvar_master_index])
-                );
-
-                // m_BVALID
-                VAL_SIG_GEN_TO_RECEIVER #(
-                    .WIDTH(1),
-                    .SENDER_NUM(`SLAVE_NUM),
-                    .RECEIVER_NUM(`MASTER_NUM),
-                    .RECEIVER_CHOSEN(genvar_master_index)
-                )
-                m_bvalid_gen
-                (
-                    .signal(axi4_slave_interface.BVALID),
-                    .select(b_master_select_with_priority),
-                    .val_sig(axi4_master_interface.BVALID[genvar_master_index])
-                );
-
-            end
         end
+
+        for (genvar_master_index = 0; genvar_master_index < `MASTER_NUM; genvar_master_index ++) begin
+            
+            // m_BID
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(`W_ID_LEN),
+                .SENDER_NUM(`SLAVE_NUM),
+                .RECEIVER_NUM(`MASTER_NUM),
+                .RECEIVER_CHOSEN(genvar_master_index)
+            )
+            m_bid_gen
+            (
+                .signal(BID_tail),
+                .select(b_master_select_with_priority),
+                .val_sig(axi4_master_interface.BID[genvar_master_index])
+            );
+
+            // m_BRESP
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(2),
+                .SENDER_NUM(`SLAVE_NUM),
+                .RECEIVER_NUM(`MASTER_NUM),
+                .RECEIVER_CHOSEN(genvar_master_index)
+            )
+            m_bresp_gen
+            (
+                .signal(axi4_slave_interface.BRESP),
+                .select(b_master_select_with_priority),
+                .val_sig(axi4_master_interface.BRESP[genvar_master_index])
+            );
+
+            // m_BVALID
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(1),
+                .SENDER_NUM(`SLAVE_NUM),
+                .RECEIVER_NUM(`MASTER_NUM),
+                .RECEIVER_CHOSEN(genvar_master_index)
+            )
+            m_bvalid_gen
+            (
+                .signal(axi4_slave_interface.BVALID),
+                .select(b_master_select_with_priority),
+                .val_sig(axi4_master_interface.BVALID[genvar_master_index])
+            );
+
+        end
+
     endgenerate
 
 
