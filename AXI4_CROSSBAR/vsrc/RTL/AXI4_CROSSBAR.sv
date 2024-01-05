@@ -43,6 +43,19 @@ module AXI4_CROSSBAR(
         end
     endgenerate
 
+
+    // w_buf
+    logic       [0 : 0]                                     w_buf_empty                     [0 : `MASTER_NUM - 1];
+    logic       [0 : 0]                                     w_buf_full                      [0 : `MASTER_NUM - 1];
+    logic       [`SLAVE_NUM - 1 : 0]                        w_buf_head_data                 [0 : `MASTER_NUM - 1];
+
+    `ifdef _DUPLICATE_R_ID_SUPPORTED_
+    // r_buf
+    logic       [0 : 0]                                     r_buf_empty                     [0 : (1 << (`EXTRA_ID_LEN + `R_ID_LEN)) - 1];
+    logic       [0 : 0]                                     r_buf_full                      [0 : (1 << (`EXTRA_ID_LEN + `R_ID_LEN)) - 1];
+    logic       [`SLAVE_NUM - 1 : 0]                        r_buf_head_data                 [0 : (1 << (`EXTRA_ID_LEN + `R_ID_LEN)) - 1];
+    `endif
+
     // slave_select
     logic       [`SLAVE_NUM - 1 : 0]                        aw_slave_select                 [0 : `MASTER_NUM - 1];
     logic       [`SLAVE_NUM - 1 : 0]                        ar_slave_select                 [0 : `MASTER_NUM - 1];
@@ -52,11 +65,6 @@ module AXI4_CROSSBAR(
     logic       [`SLAVE_NUM - 1 : 0]                        ar_slave_select_with_priority   [0 : `MASTER_NUM - 1];
     logic       [`SLAVE_NUM - 1 : 0]                        w_slave_select_with_priority    [0 : `MASTER_NUM - 1];
 
-    // w_buf
-    logic       [0 : 0]                                     w_buf_empty                     [0 : `MASTER_NUM - 1];
-    logic       [0 : 0]                                     w_buf_full                      [0 : `MASTER_NUM - 1];
-    logic       [`SLAVE_NUM - 1 : 0]                        w_buf_head_data                 [0 : `MASTER_NUM - 1];
-
     // master_select
     logic       [`MASTER_NUM - 1 : 0]                       r_master_select                 [0 : `SLAVE_NUM - 1];
     logic       [`MASTER_NUM - 1 : 0]                       b_master_select                 [0 : `SLAVE_NUM - 1];
@@ -64,22 +72,11 @@ module AXI4_CROSSBAR(
     logic       [`MASTER_NUM - 1 : 0]                       r_master_select_with_priority   [0 : `SLAVE_NUM - 1];
     logic       [`MASTER_NUM - 1 : 0]                       b_master_select_with_priority   [0 : `SLAVE_NUM - 1];
 
-    // r_buf
-    logic       [0 : 0]                                     r_buf_empty                     [0 : (1 << (`EXTRA_ID_LEN + `R_ID_LEN)) - 1];
-    logic       [0 : 0]                                     r_buf_full                      [0 : (1 << (`EXTRA_ID_LEN + `R_ID_LEN)) - 1];
-    logic       [`SLAVE_NUM - 1 : 0]                        r_buf_head_data                 [0 : (1 << (`EXTRA_ID_LEN + `R_ID_LEN)) - 1];
-
     // m_priority
     logic       [`MASTER_NUM - 1 : 0]                       m_aw_priority                   [0 : `MASTER_NUM - 1];
     logic       [`MASTER_NUM - 1 : 0]                       m_ar_priority                   [0 : `MASTER_NUM - 1];
     logic       [`MASTER_NUM - 1 : 0]                       m_w_priority                    [0 : `MASTER_NUM - 1];
 
-    // s_priority
-    logic [`SLAVE_NUM - 1 : 0] s_r_priority [0 : `SLAVE_NUM - 1];
-    logic [`SLAVE_NUM - 1 : 0] s_b_priority [0 : `SLAVE_NUM - 1];
-
-
-    // m_priority
     PRIORITY_REG #(
         .SENDER_NUM(`MASTER_NUM)
     )
@@ -117,6 +114,9 @@ module AXI4_CROSSBAR(
     );
 
     // s_priority
+    logic       [`SLAVE_NUM - 1 : 0]                        s_r_priority                    [0 : `SLAVE_NUM - 1];
+    logic       [`SLAVE_NUM - 1 : 0]                        s_b_priority                    [0 : `SLAVE_NUM - 1];
+
     PRIORITY_REG #(
         .SENDER_NUM(`SLAVE_NUM)
     )
@@ -226,6 +226,7 @@ module AXI4_CROSSBAR(
             );
         end
 
+        `ifdef _DUPLICATE_R_ID_SUPPORTED_
         // R_BUF
         for (genvar_r_buf_index = 0; genvar_r_buf_index < (1 << (`EXTRA_ID_LEN + `R_ID_LEN)); genvar_r_buf_index ++) begin
 
@@ -258,21 +259,32 @@ module AXI4_CROSSBAR(
                 .full(r_buf_full[genvar_r_buf_index])
             );
         end
+        `endif
 
         /*master as sender*/
 
         for (genvar_master_index = 0; genvar_master_index < `MASTER_NUM; genvar_master_index ++) begin
 
             // slave_select generate (address space)
+            logic       [0 : 0]         aw_check_valid;
+            logic       [0 : 0]         ar_check_valid;
+
+            assign aw_check_valid = axi4_master_interface.AWVALID[genvar_master_index] & !w_buf_full[genvar_master_index];
+            `ifdef _DUPLICATE_R_ID_SUPPORTED_
+            assign ar_check_valid = axi4_master_interface.ARVALID[genvar_master_index] & !r_buf_full[ARID_extend[genvar_master_index]];
+            `else
+            assign ar_check_valid = axi4_master_interface.ARVALID[genvar_master_index];
+            `endif
+
             SLAVE_ADDRESS_CHECK aw_check(
                 .addr(axi4_master_interface.AWADDR[genvar_master_index]),
-                .valid(axi4_master_interface.AWVALID[genvar_master_index] & !w_buf_full[genvar_master_index]),
+                .valid(aw_check_valid),
                 .res(aw_slave_select[genvar_master_index])
             );
 
             SLAVE_ADDRESS_CHECK ar_check(
                 .addr(axi4_master_interface.ARADDR[genvar_master_index]),
-                .valid(axi4_master_interface.ARVALID[genvar_master_index] & !r_buf_full[ARID_extend[genvar_master_index]]),
+                .valid(ar_check_valid),
                 .res(ar_slave_select[genvar_master_index])
             );
 
@@ -655,7 +667,11 @@ module AXI4_CROSSBAR(
         for (genvar_slave_index = 0; genvar_slave_index < `SLAVE_NUM; genvar_slave_index ++) begin
 
             // master_select generate
+            `ifdef _DUPLICATE_R_ID_SUPPORTED_
             assign r_master_select[genvar_slave_index] = axi4_slave_interface.RVALID[genvar_slave_index] && (r_buf_head_data[axi4_slave_interface.RID[genvar_slave_index]] == (1 << genvar_slave_index)) ? (1 << RID_head[genvar_slave_index]) : 0;
+            `else
+            assign r_master_select[genvar_slave_index] = axi4_slave_interface.RVALID[genvar_slave_index] ? (1 << RID_head[genvar_slave_index]) : 0;
+            `endif
             assign b_master_select[genvar_slave_index] = axi4_slave_interface.BVALID[genvar_slave_index] ? (1 << BID_head[genvar_slave_index]) : 0;
 
         end
