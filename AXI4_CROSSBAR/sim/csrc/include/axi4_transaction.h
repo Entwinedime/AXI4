@@ -36,10 +36,10 @@
         std::vector<uint64_t>           read_buffer;
     } axi4_read_transaction;
 
-    typedef std::vector<axi4_write_transaction> read_transaction_list;
-    typedef std::vector<axi4_read_transaction> write_transaction_list;
+    typedef std::vector<axi4_read_transaction> read_transaction_list;
+    typedef std::vector<axi4_write_transaction> write_transaction_list;
 
-    int list_search_with_id(const read_transaction_list& list, uint8_t id, axi4_write_transaction_state state);
-    int list_search_with_id(const write_transaction_list& list, uint8_t id, axi4_read_transaction_state state);
+    int list_search_with_id(const read_transaction_list& list, uint8_t id, axi4_read_transaction_state state);
+    int list_search_with_id(const write_transaction_list& list, uint8_t id, axi4_write_transaction_state state);
 
 #endif
