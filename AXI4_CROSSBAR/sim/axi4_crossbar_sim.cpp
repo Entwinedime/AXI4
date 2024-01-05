@@ -14,7 +14,12 @@
 #include "axi4_master_bram.h"
 #include "axi4_slave_bram.h"
 #include "axi4_transaction.h"
-#include "axi4_transaction_random_generator.h"
+
+#define RED "\033[31m"
+#define GREEN "\033[32m"
+#define YELLOW "\033[33m"
+#define BLUE "\033[34m"
+#define NONE "\033[0m"
 
 int main(int argc, char** argv) {
     Verilated::mkdir("logs");
@@ -50,18 +55,24 @@ int main(int argc, char** argv) {
 
     srand((unsigned)time(NULL));
 
+    std::cout << YELLOW << "Simulation start!" << NONE << std::endl;
+
     for (int i = 0; i < 4; i ++) {
-        write_transaction_num[i] = rand() % 256;
+        write_transaction_num[i] = rand() % 16;
         for (int j = 0; j < write_transaction_num[i]; j ++) {
             axi4_transaction_random_generator(write_transaction);
             master_bram[i].new_write_transaction(write_transaction);
         }
-        read_transaction_num[i] = rand() % 256;
+        read_transaction_num[i] = rand() % 16;
         for (int j = 0; j < read_transaction_num[i]; j ++) {
             axi4_transaction_random_generator(read_transaction);
             master_bram[i].new_read_transaction(read_transaction);
         }
+        std::cout << BLUE << "master index: " << i << NONE << std::endl;
+        std::cout << "    write transaction num: " << write_transaction_num[i] << std::endl;
+        std::cout << "    read transaction num: " << read_transaction_num[i] << std::endl;
     }
+
     
     while(true) {
         top->clk = timeStamp % 2;
@@ -210,13 +221,11 @@ int main(int argc, char** argv) {
         }
 
         if (timeStamp > 100000000) {
-            std::cout << "Simulation timeout!" << std::endl;
+            std::cout << RED << "Simulation timeout!" << NONE << std::endl;
             for (int i = 0; i < 4; i ++) {
-                std::cout << "master index: " << i << std::endl;
+                std::cout << BLUE << "master index: " << i << NONE << std::endl;
                 std::cout << "    write transaction completed list size: " << master_bram[i].write_transaction_completed_list.size() << std::endl;
                 std::cout << "    read transaction completed list size: " << master_bram[i].read_transaction_completed_list.size() << std::endl;
-                std::cout << "    write transaction num: " << write_transaction_num[i] << std::endl;
-                std::cout << "    read transaction num: " << read_transaction_num[i] << std::endl;
             }
             break;
         }
@@ -244,6 +253,9 @@ int main(int argc, char** argv) {
                 std::cout << "    size: " << (int)master_bram[i].read_transaction_completed_list[j].size << std::endl;
                 std::cout << "    len: " << (int)master_bram[i].read_transaction_completed_list[j].len << std::endl << std::endl;
             }
+            else {
+                std::cout << GREEN << "Read  Success: " << "    len: " << (int)master_bram[i].read_transaction_completed_list[j].len << NONE << std::endl;
+            }
         }
 
         for (int j = 0; j < slave_bram[i].write_transaction_completed_list.size(); j ++) {
@@ -260,13 +272,23 @@ int main(int argc, char** argv) {
                 std::cout << "    size: " << (int)slave_bram[i].write_transaction_completed_list[j].size << std::endl;
                 std::cout << "    len: " << (int)slave_bram[i].write_transaction_completed_list[j].len << std::endl << std::endl;
             }
+            else {
+                std::cout << GREEN << "Write Success: " << "    len: " << (int)slave_bram[i].write_transaction_completed_list[j].len << NONE << std::endl;
+            }
         }
     }
 
     std::cout << std::dec;
 
-    std::cout << "Simulation finished!" << std::endl;
-    std::cout << "Error count: " << error_count << std::endl;
+    std::cout << YELLOW << "Simulation finished!" << NONE << std::endl;
+    std::cout << RED << "Error count: " << error_count << NONE << std::endl;
+
+    if (error_count == 0) {
+        std::cout << GREEN << "Simulation success!" << NONE << std::endl;
+    }
+    else {
+        std::cout << RED << "Simulation failed!" << NONE << std::endl;
+    }
 
     for (int i = 0; i < 4; i ++) {
         master_bram[i].reset();

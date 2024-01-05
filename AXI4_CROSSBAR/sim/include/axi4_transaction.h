@@ -42,4 +42,7 @@
     int list_search_with_id(const read_transaction_list& list, uint8_t id, axi4_read_transaction_state state);
     int list_search_with_id(const write_transaction_list& list, uint8_t id, axi4_write_transaction_state state);
 
+    void axi4_transaction_random_generator(axi4_write_transaction& transaction);
+    void axi4_transaction_random_generator(axi4_read_transaction& transaction);
+
 #endif
