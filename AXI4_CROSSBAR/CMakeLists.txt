@@ -10,22 +10,24 @@ endif()
 add_executable(SIM_TOP ./sim/axi4_crossbar_sim.cpp)
 
 set(VSRC_DIR vsrc)
-file(GLOB_RECURSE VSRC_FILES ${VSRC_DIR}/*.sv)
+set(GLOBAL_VSRC_DIR ../GLOBAL_VSRC)
+
+file(GLOB_RECURSE VSRC_FILES ${VSRC_DIR}/*.sv ${GLOBAL_VSRC_DIR}/*.sv)
 
 verilate(   SIM_TOP 
             TRACE
             PREFIX VSIM_TOP
-            INCLUDE_DIRS ${VSRC_DIR}/include
+            INCLUDE_DIRS ${VSRC_DIR}/include ${GLOBAL_VSRC_DIR}/include
             TOP_MODULE SIM_TOP
             SOURCES ${VSRC_FILES}
-            VERILATOR_ARGS 
+            VERILATOR_ARGS
             +define+_AXI4_CROSSBAR_SIM_
             +define+MASTER_NUM=4
             +define+SLAVE_NUM=4
             +define+W_ID_LEN=4
             +define+R_ID_LEN=4
             +define+ADDR_WIDTH=32
-            +define+DATA_WIDTH=64 
+            +define+DATA_WIDTH=64
 )
 
 add_subdirectory(./sim/sources)

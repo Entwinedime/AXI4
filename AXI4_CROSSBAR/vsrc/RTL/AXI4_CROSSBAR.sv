@@ -1,22 +1,22 @@
 `ifndef _AXI4_CROSSBAR_SIM_
     `include "../include/config.sv"
-    `include "../include/interface.sv"
+    `include "../../../GLOBAL_VSRC/include/interface.sv"
 `else
     `include "config.sv"
     `include "interface.sv"
 `endif
 
-module AXI4_CROSSBAR(
+module AXI4_CROSSBAR (
     input       logic                                   clk,
     input       logic                                   rstn,
 
     // AXI_port
 
     /* masters */
-    AXI4_Master_Interface.port                          axi4_master_interface,
+    AXI4_Interface.Slave_Interface                      axi4_slave_interface,
 
     /* slaves */
-    AXI4_Slave_Interface.port                           axi4_slave_interface
+    AXI4_Interface.Master_Interface                     axi4_master_interface
 );
 
     // ID extend and simplify
@@ -30,16 +30,16 @@ module AXI4_CROSSBAR(
     genvar i;
     generate
         for(i = 0; i < `MASTER_NUM; i ++) begin
-            assign AWID_extend[i] = {i[`EXTRA_ID_LEN - 1 : 0], axi4_master_interface.AWID[i]};
-            assign ARID_extend[i] = {i[`EXTRA_ID_LEN - 1 : 0], axi4_master_interface.ARID[i]};
+            assign AWID_extend[i] = {i[`EXTRA_ID_LEN - 1 : 0], axi4_slave_interface.AWID[i]};
+            assign ARID_extend[i] = {i[`EXTRA_ID_LEN - 1 : 0], axi4_slave_interface.ARID[i]};
         end
     endgenerate
 
     genvar j;
     generate
         for (j = 0; j < `SLAVE_NUM; j ++) begin
-            assign {BID_head[j], BID_tail[j]} = axi4_slave_interface.BID[j];
-            assign {RID_head[j], RID_tail[j]} = axi4_slave_interface.RID[j];
+            assign {BID_head[j], BID_tail[j]} = axi4_master_interface.BID[j];
+            assign {RID_head[j], RID_tail[j]} = axi4_master_interface.RID[j];
         end
     endgenerate
 
@@ -84,8 +84,8 @@ module AXI4_CROSSBAR(
     (
         .clk(clk),
         .rstn(rstn),
-        .valid(axi4_master_interface.AWVALID),
-        .ready(axi4_master_interface.AWREADY),
+        .valid(axi4_slave_interface.AWVALID),
+        .ready(axi4_slave_interface.AWREADY),
         .prio(m_aw_priority)
     );
 
@@ -96,8 +96,8 @@ module AXI4_CROSSBAR(
     (
         .clk(clk),
         .rstn(rstn),
-        .valid(axi4_master_interface.ARVALID),
-        .ready(axi4_master_interface.ARREADY),
+        .valid(axi4_slave_interface.ARVALID),
+        .ready(axi4_slave_interface.ARREADY),
         .prio(m_ar_priority)
     );
 
@@ -108,8 +108,8 @@ module AXI4_CROSSBAR(
     (
         .clk(clk),
         .rstn(rstn),
-        .valid(axi4_master_interface.WVALID),
-        .ready(axi4_master_interface.WREADY),
+        .valid(axi4_slave_interface.WVALID),
+        .ready(axi4_slave_interface.WREADY),
         .prio(m_w_priority)
     );
 
@@ -124,8 +124,8 @@ module AXI4_CROSSBAR(
     (
         .clk(clk),
         .rstn(rstn),
-        .valid(axi4_slave_interface.RVALID),
-        .ready(axi4_slave_interface.RREADY),
+        .valid(axi4_master_interface.RVALID),
+        .ready(axi4_master_interface.RREADY),
         .prio(s_r_priority)
     );
 
@@ -136,8 +136,8 @@ module AXI4_CROSSBAR(
     (
         .clk(clk),
         .rstn(rstn),
-        .valid(axi4_slave_interface.BVALID),
-        .ready(axi4_slave_interface.BREADY),
+        .valid(axi4_master_interface.BVALID),
+        .ready(axi4_master_interface.BREADY),
         .prio(s_b_priority)
     );
 
@@ -205,8 +205,8 @@ module AXI4_CROSSBAR(
             logic   [0 : 0]     w_buf_enqueue;
             logic   [0 : 0]     w_buf_dequeue;
 
-            assign w_buf_enqueue = axi4_master_interface.AWVALID[genvar_master_index] & axi4_master_interface.AWREADY[genvar_master_index];
-            assign w_buf_dequeue = axi4_master_interface.WLAST[genvar_master_index] & axi4_master_interface.WVALID[genvar_master_index] & axi4_master_interface.WREADY[genvar_master_index];
+            assign w_buf_enqueue = axi4_slave_interface.AWVALID[genvar_master_index] & axi4_slave_interface.AWREADY[genvar_master_index];
+            assign w_buf_dequeue = axi4_slave_interface.WLAST[genvar_master_index] & axi4_slave_interface.WVALID[genvar_master_index] & axi4_slave_interface.WREADY[genvar_master_index];
 
             QUEUE #(
                .WIDTH(`SLAVE_NUM),
@@ -239,8 +239,8 @@ module AXI4_CROSSBAR(
             assign index_head = genvar_r_buf_index[`EXTRA_ID_LEN + `R_ID_LEN - 1 : `R_ID_LEN];
             assign index_tail = genvar_r_buf_index[`R_ID_LEN - 1 : 0];
 
-            assign r_buf_enqueue = (axi4_master_interface.ARID[index_head] == index_tail) & axi4_master_interface.ARVALID[index_head] & axi4_master_interface.ARREADY[index_head];
-            assign r_buf_dequeue = (axi4_master_interface.RID[index_head] == index_tail) & axi4_master_interface.RLAST[index_head] & axi4_master_interface.RVALID[index_head] & axi4_master_interface.RREADY[index_head];
+            assign r_buf_enqueue = (axi4_slave_interface.ARID[index_head] == index_tail) & axi4_slave_interface.ARVALID[index_head] & axi4_slave_interface.ARREADY[index_head];
+            assign r_buf_dequeue = (axi4_slave_interface.RID[index_head] == index_tail) & axi4_slave_interface.RLAST[index_head] & axi4_slave_interface.RVALID[index_head] & axi4_slave_interface.RREADY[index_head];
 
             QUEUE #(
                 .WIDTH(`SLAVE_NUM),
@@ -269,21 +269,21 @@ module AXI4_CROSSBAR(
             logic       [0 : 0]         aw_check_valid;
             logic       [0 : 0]         ar_check_valid;
 
-            assign aw_check_valid = axi4_master_interface.AWVALID[genvar_master_index] & !w_buf_full[genvar_master_index];
+            assign aw_check_valid = axi4_slave_interface.AWVALID[genvar_master_index] & !w_buf_full[genvar_master_index];
             `ifdef _DUPLICATE_R_ID_SUPPORTED_
-            assign ar_check_valid = axi4_master_interface.ARVALID[genvar_master_index] & !r_buf_full[ARID_extend[genvar_master_index]];
+            assign ar_check_valid = axi4_slave_interface.ARVALID[genvar_master_index] & !r_buf_full[ARID_extend[genvar_master_index]];
             `else
-            assign ar_check_valid = axi4_master_interface.ARVALID[genvar_master_index];
+            assign ar_check_valid = axi4_slave_interface.ARVALID[genvar_master_index];
             `endif
 
             SLAVE_ADDRESS_CHECK aw_check(
-                .addr(axi4_master_interface.AWADDR[genvar_master_index]),
+                .addr(axi4_slave_interface.AWADDR[genvar_master_index]),
                 .valid(aw_check_valid),
                 .res(aw_slave_select[genvar_master_index])
             );
 
             SLAVE_ADDRESS_CHECK ar_check(
-                .addr(axi4_master_interface.ARADDR[genvar_master_index]),
+                .addr(axi4_slave_interface.ARADDR[genvar_master_index]),
                 .valid(ar_check_valid),
                 .res(ar_slave_select[genvar_master_index])
             );
@@ -302,9 +302,9 @@ module AXI4_CROSSBAR(
             )
             m_arready_gen
             (
-                .signal(axi4_slave_interface.ARREADY),
+                .signal(axi4_master_interface.ARREADY),
                 .select(ar_slave_select_with_priority[genvar_master_index]),
-                .val_sig(axi4_master_interface.ARREADY[genvar_master_index])
+                .val_sig(axi4_slave_interface.ARREADY[genvar_master_index])
             );
 
         end
@@ -322,7 +322,7 @@ module AXI4_CROSSBAR(
             (
                 .signal(ARID_extend),
                 .select(ar_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.ARID[genvar_slave_index])
+                .val_sig(axi4_master_interface.ARID[genvar_slave_index])
             );
 
             // s_ARADDR
@@ -334,9 +334,9 @@ module AXI4_CROSSBAR(
             )
             s_araddr_gen
             (
-                .signal(axi4_master_interface.ARADDR),
+                .signal(axi4_slave_interface.ARADDR),
                 .select(ar_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.ARADDR[genvar_slave_index])
+                .val_sig(axi4_master_interface.ARADDR[genvar_slave_index])
             );
 
             // s_ARLEN
@@ -348,9 +348,9 @@ module AXI4_CROSSBAR(
             )
             s_arlen_gen
             (
-                .signal(axi4_master_interface.ARLEN),
+                .signal(axi4_slave_interface.ARLEN),
                 .select(ar_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.ARLEN[genvar_slave_index])
+                .val_sig(axi4_master_interface.ARLEN[genvar_slave_index])
             );
 
             // s_ARSIZE
@@ -362,9 +362,9 @@ module AXI4_CROSSBAR(
             )
             s_arsize_gen
             (
-                .signal(axi4_master_interface.ARSIZE),
+                .signal(axi4_slave_interface.ARSIZE),
                 .select(ar_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.ARSIZE[genvar_slave_index])
+                .val_sig(axi4_master_interface.ARSIZE[genvar_slave_index])
             );
 
             // s_ARBURST
@@ -376,9 +376,9 @@ module AXI4_CROSSBAR(
             )
             s_arburst_gen
             (
-                .signal(axi4_master_interface.ARBURST),
+                .signal(axi4_slave_interface.ARBURST),
                 .select(ar_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.ARBURST[genvar_slave_index])
+                .val_sig(axi4_master_interface.ARBURST[genvar_slave_index])
             );
 
             // s_ARLOCK
@@ -390,9 +390,9 @@ module AXI4_CROSSBAR(
             )
             s_arlock_gen
             (
-                .signal(axi4_master_interface.ARLOCK),
+                .signal(axi4_slave_interface.ARLOCK),
                 .select(ar_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.ARLOCK[genvar_slave_index])
+                .val_sig(axi4_master_interface.ARLOCK[genvar_slave_index])
             );
 
             // s_ARCACHE
@@ -404,9 +404,9 @@ module AXI4_CROSSBAR(
             )
             s_arcache_gen
             (
-                .signal(axi4_master_interface.ARCACHE),
+                .signal(axi4_slave_interface.ARCACHE),
                 .select(ar_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.ARCACHE[genvar_slave_index])
+                .val_sig(axi4_master_interface.ARCACHE[genvar_slave_index])
             );
 
             // s_ARPROT
@@ -418,9 +418,9 @@ module AXI4_CROSSBAR(
             )
             s_arport_gen
             (
-                .signal(axi4_master_interface.ARPROT),
+                .signal(axi4_slave_interface.ARPROT),
                 .select(ar_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.ARPROT[genvar_slave_index])
+                .val_sig(axi4_master_interface.ARPROT[genvar_slave_index])
             );
 
             // s_ARVALID
@@ -432,9 +432,9 @@ module AXI4_CROSSBAR(
             )
             s_arvalid_gen
             (
-                .signal(axi4_master_interface.ARVALID),
+                .signal(axi4_slave_interface.ARVALID),
                 .select(ar_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.ARVALID[genvar_slave_index])
+                .val_sig(axi4_master_interface.ARVALID[genvar_slave_index])
             );
 
         end
@@ -449,9 +449,9 @@ module AXI4_CROSSBAR(
             )
             m_awready_gen
             (
-                .signal(axi4_slave_interface.AWREADY),
+                .signal(axi4_master_interface.AWREADY),
                 .select(aw_slave_select_with_priority[genvar_master_index]),
-                .val_sig(axi4_master_interface.AWREADY[genvar_master_index])
+                .val_sig(axi4_slave_interface.AWREADY[genvar_master_index])
             );
 
         end
@@ -469,7 +469,7 @@ module AXI4_CROSSBAR(
             (
                 .signal(AWID_extend),
                 .select(aw_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.AWID[genvar_slave_index])
+                .val_sig(axi4_master_interface.AWID[genvar_slave_index])
             );
 
             // s_AWADDR
@@ -481,9 +481,9 @@ module AXI4_CROSSBAR(
             )
             s_awaddr_gen
             (
-                .signal(axi4_master_interface.AWADDR),
+                .signal(axi4_slave_interface.AWADDR),
                 .select(aw_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.AWADDR[genvar_slave_index])
+                .val_sig(axi4_master_interface.AWADDR[genvar_slave_index])
             );
 
             // s_AWLEN
@@ -495,9 +495,9 @@ module AXI4_CROSSBAR(
             )
             s_awlen_gen
             (
-                .signal(axi4_master_interface.AWLEN),
+                .signal(axi4_slave_interface.AWLEN),
                 .select(aw_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.AWLEN[genvar_slave_index])
+                .val_sig(axi4_master_interface.AWLEN[genvar_slave_index])
             );
 
             // s_AWSIZE
@@ -509,9 +509,9 @@ module AXI4_CROSSBAR(
             )
             s_awsize_gen
             (
-                .signal(axi4_master_interface.AWSIZE),
+                .signal(axi4_slave_interface.AWSIZE),
                 .select(aw_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.AWSIZE[genvar_slave_index])
+                .val_sig(axi4_master_interface.AWSIZE[genvar_slave_index])
             );
 
             // s_AWBURST
@@ -523,9 +523,9 @@ module AXI4_CROSSBAR(
             )
             s_awburst_gen
             (
-                .signal(axi4_master_interface.AWBURST),
+                .signal(axi4_slave_interface.AWBURST),
                 .select(aw_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.AWBURST[genvar_slave_index])
+                .val_sig(axi4_master_interface.AWBURST[genvar_slave_index])
             );
 
             // s_AWLOCK
@@ -537,9 +537,9 @@ module AXI4_CROSSBAR(
             )
             s_awlock_gen
             (
-                .signal(axi4_master_interface.AWLOCK),
+                .signal(axi4_slave_interface.AWLOCK),
                 .select(aw_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.AWLOCK[genvar_slave_index])
+                .val_sig(axi4_master_interface.AWLOCK[genvar_slave_index])
             );
 
             // s_AWCACHE
@@ -551,9 +551,9 @@ module AXI4_CROSSBAR(
             )
             s_awcache_gen
             (
-                .signal(axi4_master_interface.AWCACHE),
+                .signal(axi4_slave_interface.AWCACHE),
                 .select(aw_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.AWCACHE[genvar_slave_index])
+                .val_sig(axi4_master_interface.AWCACHE[genvar_slave_index])
             );
 
             // s_AWPROT
@@ -565,9 +565,9 @@ module AXI4_CROSSBAR(
             )
             s_awprot_gen
             (
-                .signal(axi4_master_interface.AWPROT),
+                .signal(axi4_slave_interface.AWPROT),
                 .select(aw_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.AWPROT[genvar_slave_index])
+                .val_sig(axi4_master_interface.AWPROT[genvar_slave_index])
             );
 
             // s_AWVALID
@@ -579,9 +579,9 @@ module AXI4_CROSSBAR(
             )
             s_awvalid_gen
             (
-                .signal(axi4_master_interface.AWVALID),
+                .signal(axi4_slave_interface.AWVALID),
                 .select(aw_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.AWVALID[genvar_slave_index])
+                .val_sig(axi4_master_interface.AWVALID[genvar_slave_index])
             );
 
         end
@@ -595,9 +595,9 @@ module AXI4_CROSSBAR(
             )
             m_wready_gen
             (
-                .signal(axi4_slave_interface.WREADY),
+                .signal(axi4_master_interface.WREADY),
                 .select(w_slave_select_with_priority[genvar_master_index]),
-                .val_sig(axi4_master_interface.WREADY[genvar_master_index])
+                .val_sig(axi4_slave_interface.WREADY[genvar_master_index])
             );
         
         end
@@ -613,9 +613,9 @@ module AXI4_CROSSBAR(
             )
             s_wdata_gen
             (
-                .signal(axi4_master_interface.WDATA),
+                .signal(axi4_slave_interface.WDATA),
                 .select(w_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.WDATA[genvar_slave_index])
+                .val_sig(axi4_master_interface.WDATA[genvar_slave_index])
             );
 
             // s_WSTRB
@@ -627,9 +627,9 @@ module AXI4_CROSSBAR(
             )
             s_wstrb_gen
             (
-                .signal(axi4_master_interface.WSTRB),
+                .signal(axi4_slave_interface.WSTRB),
                 .select(w_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.WSTRB[genvar_slave_index])
+                .val_sig(axi4_master_interface.WSTRB[genvar_slave_index])
             );
 
             // s_WLAST
@@ -641,9 +641,9 @@ module AXI4_CROSSBAR(
             )
             s_wlast_gen
             (
-                .signal(axi4_master_interface.WLAST),
+                .signal(axi4_slave_interface.WLAST),
                 .select(w_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.WLAST[genvar_slave_index])
+                .val_sig(axi4_master_interface.WLAST[genvar_slave_index])
             );
 
             // s_WVALID
@@ -655,9 +655,9 @@ module AXI4_CROSSBAR(
             )
             s_awvalid_gen
             (
-                .signal(axi4_master_interface.WVALID),
+                .signal(axi4_slave_interface.WVALID),
                 .select(w_slave_select_with_priority),
-                .val_sig(axi4_slave_interface.WVALID[genvar_slave_index])
+                .val_sig(axi4_master_interface.WVALID[genvar_slave_index])
             );
 
         end
@@ -668,11 +668,11 @@ module AXI4_CROSSBAR(
 
             // master_select generate
             `ifdef _DUPLICATE_R_ID_SUPPORTED_
-            assign r_master_select[genvar_slave_index] = axi4_slave_interface.RVALID[genvar_slave_index] && (r_buf_head_data[axi4_slave_interface.RID[genvar_slave_index]] == (1 << genvar_slave_index)) ? (1 << RID_head[genvar_slave_index]) : 0;
+            assign r_master_select[genvar_slave_index] = axi4_master_interface.RVALID[genvar_slave_index] && (r_buf_head_data[axi4_master_interface.RID[genvar_slave_index]] == (1 << genvar_slave_index)) ? (1 << RID_head[genvar_slave_index]) : 0;
             `else
-            assign r_master_select[genvar_slave_index] = axi4_slave_interface.RVALID[genvar_slave_index] ? (1 << RID_head[genvar_slave_index]) : 0;
+            assign r_master_select[genvar_slave_index] = axi4_master_interface.RVALID[genvar_slave_index] ? (1 << RID_head[genvar_slave_index]) : 0;
             `endif
-            assign b_master_select[genvar_slave_index] = axi4_slave_interface.BVALID[genvar_slave_index] ? (1 << BID_head[genvar_slave_index]) : 0;
+            assign b_master_select[genvar_slave_index] = axi4_master_interface.BVALID[genvar_slave_index] ? (1 << BID_head[genvar_slave_index]) : 0;
 
         end
 
@@ -686,9 +686,9 @@ module AXI4_CROSSBAR(
             )
             s_rready_gen
             (
-                .signal(axi4_master_interface.RREADY),
+                .signal(axi4_slave_interface.RREADY),
                 .select(r_master_select_with_priority[genvar_slave_index]),
-                .val_sig(axi4_slave_interface.RREADY[genvar_slave_index])
+                .val_sig(axi4_master_interface.RREADY[genvar_slave_index])
             );
         
         end
@@ -706,7 +706,7 @@ module AXI4_CROSSBAR(
             (
                 .signal(RID_tail),
                 .select(r_master_select_with_priority),
-                .val_sig(axi4_master_interface.RID[genvar_master_index])
+                .val_sig(axi4_slave_interface.RID[genvar_master_index])
             );
 
             // m_RDATA
@@ -718,9 +718,9 @@ module AXI4_CROSSBAR(
             )
             m_rdata_gen
             (
-                .signal(axi4_slave_interface.RDATA),
+                .signal(axi4_master_interface.RDATA),
                 .select(r_master_select_with_priority),
-                .val_sig(axi4_master_interface.RDATA[genvar_master_index])
+                .val_sig(axi4_slave_interface.RDATA[genvar_master_index])
             );
 
             // m_RSTRB
@@ -732,9 +732,23 @@ module AXI4_CROSSBAR(
             )
             m_rstrb_gen
             (
-                .signal(axi4_slave_interface.RSTRB),
+                .signal(axi4_master_interface.RSTRB),
                 .select(r_master_select_with_priority),
-                .val_sig(axi4_master_interface.RSTRB[genvar_master_index])
+                .val_sig(axi4_slave_interface.RSTRB[genvar_master_index])
+            );
+
+            // m_RRESP
+            VAL_SIG_GEN_TO_RECEIVER #(
+                .WIDTH(3),
+                .SENDER_NUM(`SLAVE_NUM),
+                .RECEIVER_NUM(`MASTER_NUM),
+                .RECEIVER_CHOSEN(genvar_master_index)
+            )
+            m_rresp_gen
+            (
+                .signal(axi4_master_interface.RRESP),
+                .select(r_master_select_with_priority),
+                .val_sig(axi4_slave_interface.RRESP[genvar_master_index])
             );
 
             // m_RLAST
@@ -746,9 +760,9 @@ module AXI4_CROSSBAR(
             )
             m_rlast_gen
             (
-                .signal(axi4_slave_interface.RLAST),
+                .signal(axi4_master_interface.RLAST),
                 .select(r_master_select_with_priority),
-                .val_sig(axi4_master_interface.RLAST[genvar_master_index])
+                .val_sig(axi4_slave_interface.RLAST[genvar_master_index])
             );
             // m_RVALID
             VAL_SIG_GEN_TO_RECEIVER #(
@@ -759,9 +773,9 @@ module AXI4_CROSSBAR(
             )
             m_rvalid_gen
             (
-                .signal(axi4_slave_interface.RVALID),
+                .signal(axi4_master_interface.RVALID),
                 .select(r_master_select_with_priority),
-                .val_sig(axi4_master_interface.RVALID[genvar_master_index])
+                .val_sig(axi4_slave_interface.RVALID[genvar_master_index])
             );
 
         end
@@ -776,9 +790,9 @@ module AXI4_CROSSBAR(
             )
             s_bready_gen
             (
-                .signal(axi4_master_interface.BREADY),
+                .signal(axi4_slave_interface.BREADY),
                 .select(b_master_select_with_priority[genvar_slave_index]),
-                .val_sig(axi4_slave_interface.BREADY[genvar_slave_index])
+                .val_sig(axi4_master_interface.BREADY[genvar_slave_index])
             );
 
         end
@@ -796,21 +810,21 @@ module AXI4_CROSSBAR(
             (
                 .signal(BID_tail),
                 .select(b_master_select_with_priority),
-                .val_sig(axi4_master_interface.BID[genvar_master_index])
+                .val_sig(axi4_slave_interface.BID[genvar_master_index])
             );
 
             // m_BRESP
             VAL_SIG_GEN_TO_RECEIVER #(
-                .WIDTH(2),
+                .WIDTH(3),
                 .SENDER_NUM(`SLAVE_NUM),
                 .RECEIVER_NUM(`MASTER_NUM),
                 .RECEIVER_CHOSEN(genvar_master_index)
             )
             m_bresp_gen
             (
-                .signal(axi4_slave_interface.BRESP),
+                .signal(axi4_master_interface.BRESP),
                 .select(b_master_select_with_priority),
-                .val_sig(axi4_master_interface.BRESP[genvar_master_index])
+                .val_sig(axi4_slave_interface.BRESP[genvar_master_index])
             );
 
             // m_BVALID
@@ -822,9 +836,9 @@ module AXI4_CROSSBAR(
             )
             m_bvalid_gen
             (
-                .signal(axi4_slave_interface.BVALID),
+                .signal(axi4_master_interface.BVALID),
                 .select(b_master_select_with_priority),
-                .val_sig(axi4_master_interface.BVALID[genvar_master_index])
+                .val_sig(axi4_slave_interface.BVALID[genvar_master_index])
             );
 
         end

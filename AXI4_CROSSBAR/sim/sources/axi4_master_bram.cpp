@@ -1,8 +1,6 @@
 #include "axi4_master_bram.h"
 #include "axi4_transaction.h"
 
-#include <iostream>
-
 axi4_master_bram::axi4_master_bram() {
     write_transaction_completed_list.clear();
     read_transaction_completed_list.clear();
